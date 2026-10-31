@@ -2,6 +2,10 @@
 
 # Lunixi Payments for Magento 2
 
+**Verified public merchant ZIP 0.1.3:** [`lunixi-magento2-0.1.3.zip`](https://github.com/Lunixi-Payment/lunixi-magento2/releases/download/v0.1.3/lunixi-magento2-0.1.3.zip) · [SHA256SUMS](https://github.com/Lunixi-Payment/lunixi-magento2/releases/download/v0.1.3/SHA256SUMS) · [Release v0.1.3](https://github.com/Lunixi-Payment/lunixi-magento2/releases/tag/v0.1.3). The CI-built installation package was downloaded and verified on 2026-10-31. Use this asset rather than GitHub's automatic source archive.
+
+Public CI ZIP SHA256: `fff93235ddf631c1b7da2e20b66b1f1bf69bdf0e0f73a1bfdbd0aa1318ac6ad9`.
+
 The existing Lunixi form opens **on the merchant website by default**. Hosted checkout remains optional and uses only the validated backend `paymentPageUrl`. Its opaque token can differ from the embedded token; the module never builds this URL from that token. Missing or legacy URLs keep embedded checkout available; hosted checkout stays on hold/reconciliation without a new intent or key. Existing attempts keep their saved mode, request body, profile and key. The official form/panel controls available methods and multi-card options.
 
 Native payment module **0.1.3**, targeting Magento Open Source / Adobe Commerce **2.4.9 payment APIs**. It uses the modern Magento Payment Adapter and the shared [Lunixi PHP SDK 0.29.5](https://github.com/Lunixi-Payment/lunixi-php). The existing Lunixi form is embedded by default; optional redirect uses the backend `paymentPageUrl`.
