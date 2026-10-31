@@ -32,6 +32,7 @@ jobs:
           coverage: none
       - name: Locked tooling and standalone merchant module
         run: |
+          python3 tools/test-release-metadata.py
           composer install --working-dir=tools --no-interaction --no-plugins --no-scripts --prefer-dist
           php tools/build.php
       - name: Private disposable native database configuration
@@ -49,7 +50,7 @@ jobs:
           tools/vendor/bin/phpcs --standard=phpcs.xml
           find Model Gateway Controller Block Plugin tools -path 'tools/vendor' -prune -o -name '*.php' -print0 | xargs -0 -n1 php -l
           find view -name '*.js' -print0 | xargs -0 -n1 node --check
-          python3 -m py_compile tools/native-security.py
+          python3 -m py_compile tools/native-security.py tools/test-release-metadata.py
           composer audit --working-dir=tools
           composer audit --working-dir=build/input --no-dev
       - name: Pinned source and standalone artifact secret scans

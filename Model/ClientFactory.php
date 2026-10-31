@@ -27,7 +27,7 @@ class ClientFactory
                 'privateKey' => $credentials['privateKey'],
                 'maxRetries' => 1,
                 'timeout' => 20,
-                'userAgent' => 'lunixi-magento2/0.1.0',
+                'userAgent' => 'lunixi-magento2/0.1.1',
             ]),
             $this->http,
             $this->tokens,

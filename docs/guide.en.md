@@ -1,10 +1,10 @@
 # Magento 2 / Adobe Commerce
 
-Lunixi Payments 0.1.0 integrates the Magento Payment Adapter with the shared PHP SDK 0.29.3. Source: [lunixi-magento2](https://github.com/Lunixi-Payment/lunixi-magento2). The target API line is **2.4.9**; native acceptance was executed on Magento Open Source, not a licensed Adobe Commerce installation.
+Lunixi Payments 0.1.1 integrates the Magento Payment Adapter with the shared PHP SDK 0.29.3. Source: [lunixi-magento2](https://github.com/Lunixi-Payment/lunixi-magento2). The target API line is **2.4.9**; native acceptance was executed on Magento Open Source, not a licensed Adobe Commerce installation.
 
 ## Install
 
-Use the completed `lunixi-magento2-0.1.0.zip` and verify its SHA-256. Extract it at the store root; the module is under `app/code/Lunixi/Payments`. The ZIP bundles a namespace-isolated SDK and needs no module Composer restore.
+Use the completed `lunixi-magento2-0.1.1.zip` and verify its SHA-256. Extract it at the store root; the module is under `app/code/Lunixi/Payments`. The ZIP bundles a namespace-isolated SDK and needs no module Composer restore.
 
 ```bash
 php bin/magento module:enable Lunixi_Payments
@@ -75,7 +75,7 @@ Enable Magento cron. Separate rotating budgets poll unresolved orders and settle
 
 ## Retention and limits
 
-Keep `lunixi_payment_*` tables, historical profiles, Magento crypt key and the separate server key through refund/dispute retention. No financial-delete uninstall hook or destructive declarative whitelist is provided. Recurring payments, stored cards/vault, Hyvä/headless renderers, automated RMA/restocking and Adobe Commerce-only features are not implemented in 0.1.0.
+Keep `lunixi_payment_*` tables, historical profiles, Magento crypt key and the separate server key through refund/dispute retention. No financial-delete uninstall hook or destructive declarative whitelist is provided. Recurring payments, stored cards/vault, Hyvä/headless renderers, automated RMA/restocking and Adobe Commerce-only features are not implemented in 0.1.1.
 
 The repository verification record lists executed native tests, dependency/security checks and limits. No live charge, marketplace approval or complete browser-store acceptance is claimed.
 

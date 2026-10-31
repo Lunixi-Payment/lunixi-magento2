@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.1 — 2026-10-31
+
+- Read the authoritative bundled `VERSION` file when Composer exports omit `version`; validate the Composer value only when present.
+- Add real builder regressions for stripped/matching/conflicting/missing release metadata and verify a clean public export.
+- Keep shared PHP SDK 0.29.3 and the existing native financial behavior.
+
 ## 0.1.0 — 2026-10-31
 
 - Native Magento Payment Adapter, hosted/embedded shared form and encrypted admin credential entry.

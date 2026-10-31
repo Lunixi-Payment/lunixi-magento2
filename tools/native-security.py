@@ -58,7 +58,7 @@ def main():
         archive = cache / name
         if not archive.exists():
             request = urllib.request.Request('https://repo.magento.com/patch/' + name,
-                                             headers={'User-Agent': 'Lunixi-native-security-fixture/0.1.0'})
+                                             headers={'User-Agent': 'Lunixi-native-security-fixture/0.1.1'})
             with urllib.request.urlopen(request, timeout=60) as response:
                 archive.write_bytes(response.read())
         if digest(archive) != expected:

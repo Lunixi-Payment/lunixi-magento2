@@ -8,7 +8,7 @@ or discussions.
 Email **developer@lunixi.com** with the subject line
 `Security: Lunixi for Magento 2` and include:
 
-- the package version (`lunixi/module-payments`) and your runtime version,
+- the module version (from `VERSION`) and your runtime version,
 - what an attacker could do and what is needed to do it,
 - steps or a minimal example that shows the problem.
 

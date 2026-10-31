@@ -1,4 +1,4 @@
-# Verification record — 0.1.0
+# Verification record — 0.1.1
 
 Verified on 2026-10-31, macOS arm64, **PHP 8.4.1**, **MariaDB 11.8.6/InnoDB**, official Magento Open Source **2.4.9** and real native DI/services/database. No live gateway charge or external email was sent.
 
@@ -23,6 +23,7 @@ Verified on 2026-10-31, macOS arm64, **PHP 8.4.1**, **MariaDB 11.8.6/InnoDB**, o
 ## Executed checks
 
 - Native `module:enable`, declarative `setup:upgrade`, clean `setup:install`, and full **9/9 native DI compile stages** passed on the standalone module, including generated interceptors. Developer modules are intentionally non-final where Magento interception requires inheritance.
+- Public Composer export: removed the optional module Composer `version` field, installed locked tools in a clean source copy, then built the standalone ZIP using the authoritative bundled `VERSION`. Six actual-builder metadata cases (stripped, matching, conflicting, null, missing and unsafe) passed.
 - Native PHP suite: **21 tests / 106 assertions** passed against the installed standalone artifact on the October-patched native fixture.
 - Browser loader: **2 Node tests** passed, covering structured configuration, AMD/global exports, CDN and asynchronous mount failure without exposing error contents.
 - **PHPStan level 7**, PSR-12 production adapter formatting, PHP/JS/Python syntax checks passed. The sole naming-rule exception is Magento’s required `_getElementHtml` native override.
@@ -35,6 +36,7 @@ Verified on 2026-10-31, macOS arm64, **PHP 8.4.1**, **MariaDB 11.8.6/InnoDB**, o
 Use only a disposable database named exactly `lunixi_magento`; its account must own only that schema. Store `host`, integer `port`, `database`, `username`, `password` in a private chmod600 JSON file outside public source. Bootstrap refuses another schema or a non-TEST existing native deployment configuration. The installer clears only TEST fixture caches, then rebuilds the disposable native database.
 
 ```bash
+python3 tools/test-release-metadata.py
 composer install --working-dir=tools --no-interaction --no-plugins --no-scripts
 php tools/build.php
 export LUNIXI_NATIVE_TEST_DESTRUCTIVE=1
