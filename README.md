@@ -8,13 +8,15 @@ Public CI ZIP SHA256: `fff93235ddf631c1b7da2e20b66b1f1bf69bdf0e0f73a1bfdbd0aa131
 
 The existing Lunixi form opens **on the merchant website by default**. Hosted checkout remains optional and uses only the validated backend `paymentPageUrl`. Its opaque token can differ from the embedded token; the module never builds this URL from that token. Missing or legacy URLs keep embedded checkout available; hosted checkout stays on hold/reconciliation without a new intent or key. Existing attempts keep their saved mode, request body, profile and key. The official form/panel controls available methods and multi-card options.
 
-Native payment module **0.1.3**, targeting Magento Open Source / Adobe Commerce **2.4.9 payment APIs**. It uses the modern Magento Payment Adapter and the shared [Lunixi PHP SDK 0.29.5](https://github.com/Lunixi-Payment/lunixi-php). The existing Lunixi form is embedded by default; optional redirect uses the backend `paymentPageUrl`.
+Prepared candidate payment module **0.1.4**, targeting Magento Open Source / Adobe Commerce **2.4.9 payment APIs**. It uses the modern Magento Payment Adapter and the shared [Lunixi PHP SDK 0.29.6](https://github.com/Lunixi-Payment/lunixi-php). The existing Lunixi form is embedded by default; optional redirect uses the backend `paymentPageUrl`.
 
 Available methods, installments, insurance and split eligibility are managed in the **Lunixi panel**. The module does not duplicate method filters or collect card data. Product-specific capabilities still depend on merchant/form activation and the required product context.
 
+Candidate 0.1.4 bundles PHP SDK 0.29.6 to fix strict PHP 8.5 transport handling. The public merchant ZIP above remains 0.1.3 until its replacement is published.
+
 ## Compatibility
 
-Actual native installation, schema, DI and financial-service tests use official **Magento Open Source 2.4.9**, local **PHP 8.4.1**, **MariaDB 11.8.6/InnoDB**, and a minimal installation of 63 native modules plus Lunixi. Search modules are omitted from this financial test fixture; no search daemon, full checkout browser walkthrough or licensed Adobe Commerce runtime was tested.
+Actual native installation, schema, DI and financial-service tests use official **Magento Open Source 2.4.9**, local **PHP 8.4.1**, **MariaDB 11.8.6/InnoDB**, and a minimal installation of 63 native modules plus Lunixi. That earlier financial fixture omitted search. Additional candidate acceptance used the full 223-module Magento Open Source 2.4.9 store on PHP 8.5.12, MariaDB 12.3 and OpenSearch 3.9.0, including genuine HTTPS guest-cart/order/checkout/webhook routes with a controlled local TLS provider. Licensed Adobe Commerce and bank/card acceptance were not tested.
 
 Production deployments must follow Adobe's [current system requirements](https://experienceleague.adobe.com/en/docs/commerce-operations/installation-guide/system-requirements) and security patches. Adobe's current 2.4.9 on-premises matrix lists PHP 8.5 and MariaDB 12.3/MySQL 8.4. Source PHP constraints and local acceptance are not claims that every platform deployment combination is vendor supported. Older Magento API lines and Adobe Commerce-only features are not claimed tested.
 
@@ -29,7 +31,7 @@ composer install --working-dir=tools --no-interaction --no-plugins --no-scripts
 php tools/build.php
 ```
 
-The builder fetches exactly `lunixi/php-sdk:0.29.5`, scopes it into `Lunixi\Payments\Vendor` with pinned build dependencies and includes its MIT license. A trusted source checkout can be supplied as `php tools/build.php /absolute/path/to/lunixi-php`. Output: `dist/lunixi-magento2-0.1.3.zip` and SHA-256 file. Source checkouts must be built before enabling the module; the generated SDK is deliberately excluded from source control. The source and ZIP include the authoritative `VERSION` file. Public Composer exports may omit their optional `version` field because Packagist reads Git tags; the builder supports both forms and rejects a conflicting field.
+The builder fetches exactly `lunixi/php-sdk:0.29.6`, scopes it into `Lunixi\Payments\Vendor` with pinned build dependencies and includes its MIT license. A trusted source checkout can be supplied as `php tools/build.php /absolute/path/to/lunixi-php`. Output: `dist/lunixi-magento2-0.1.4.zip` and SHA-256 file. Source checkouts must be built before enabling the module; the generated SDK is deliberately excluded from source control. The source and ZIP include the authoritative `VERSION` file. Public Composer exports may omit their optional `version` field because Packagist reads Git tags; the builder supports both forms and rejects a conflicting field.
 
 On a backed-up staging Magento installation, extract the ZIP at the store root. It contains `app/code/Lunixi/Payments/`:
 
@@ -67,7 +69,7 @@ Native fraud/manual holds and canceled orders are preserved even when funded. Re
 
 ## Retention and verification
 
-Disabling/removing the module does not run a financial-data deletion hook. No destructive declarative whitelist or uninstall routine is provided. Preserve `lunixi_payment_*` tables, historical encrypted profiles, Magento crypt key and the separate server key; native destructive database cleanup remains an explicit operator action. Recurring payments, vault/card storage, Hyvä/headless checkout renderers, RMA automation and Adobe Commerce-only modules are not implemented in 0.1.3.
+Disabling/removing the module does not run a financial-data deletion hook. No destructive declarative whitelist or uninstall routine is provided. Preserve `lunixi_payment_*` tables, historical encrypted profiles, Magento crypt key and the separate server key; native destructive database cleanup remains an explicit operator action. Recurring payments, vault/card storage, Hyvä/headless checkout renderers, RMA automation and Adobe Commerce-only modules are not implemented in 0.1.4.
 
 See [docs/VERIFICATION.md](docs/VERIFICATION.md) for actual test commands, native fixture scope and limits; [English guide](docs/guide.en.md), [Türkçe rehber](docs/guide.tr.md), [security reporting](SECURITY.md), [changelog](CHANGELOG.md), [MIT](LICENSE). No live charge or marketplace approval is claimed.
 

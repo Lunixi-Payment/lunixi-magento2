@@ -2,7 +2,7 @@
 
 The existing Lunixi form opens **on the merchant website by default**. Hosted checkout remains optional and uses only the validated backend `paymentPageUrl`. Its opaque token can differ from the embedded token; the module never builds this URL from that token. Missing or legacy URLs keep embedded checkout available; hosted checkout stays on hold/reconciliation without a new intent or key. Existing attempts keep their saved mode, request body, profile and key. The official form/panel controls available methods and multi-card options.
 
-Lunixi Payments 0.1.3 integrates the Magento Payment Adapter with the shared PHP SDK 0.29.5. Source: [lunixi-magento2](https://github.com/Lunixi-Payment/lunixi-magento2). The target API line is **2.4.9**; native acceptance was executed on Magento Open Source, not a licensed Adobe Commerce installation.
+Prepared candidate Lunixi Payments 0.1.4 integrates the Magento Payment Adapter with the shared PHP SDK 0.29.6. Source: [lunixi-magento2](https://github.com/Lunixi-Payment/lunixi-magento2). The target API line is **2.4.9**; native acceptance was executed on Magento Open Source, not a licensed Adobe Commerce installation.
 
 ## Install
 
@@ -16,7 +16,7 @@ php bin/magento setup:static-content:deploy en_US tr_TR
 php bin/magento cache:clean
 ```
 
-Maintainers can build from source with `composer install --working-dir=tools --no-plugins --no-scripts` followed by `php tools/build.php`. The build input is exactly `lunixi/php-sdk:0.29.5`; `php tools/build.php /absolute/path/to/lunixi-php` accepts a trusted checkout. Source checkouts must be built before enabling the module. GitHub source availability does not imply a module Composer-registry release or Adobe Marketplace listing.
+Maintainers can build from source with `composer install --working-dir=tools --no-plugins --no-scripts` followed by `php tools/build.php`. The build input is exactly `lunixi/php-sdk:0.29.6`; `php tools/build.php /absolute/path/to/lunixi-php` accepts a trusted checkout. Source checkouts must be built before enabling the module. GitHub source availability does not imply a module Composer-registry release or Adobe Marketplace listing.
 
 Use Adobe's current supported PHP/database/service matrix and security patches for production. The exact local verification environment was PHP 8.4.1, MariaDB 11.8.6/InnoDB and official Magento Open Source 2.4.9 with 63 native modules, plus Lunixi. Search modules were omitted from that financial fixture. This is native service/database acceptance; full storefront browser testing, search and licensed Commerce features still need merchant staging validation. Adobe's current on-premises 2.4.9 matrix lists PHP 8.5 and MariaDB 12.3/MySQL 8.4. See [system requirements](https://experienceleague.adobe.com/en/docs/commerce-operations/installation-guide/system-requirements).
 
@@ -77,7 +77,7 @@ Enable Magento cron. Separate rotating budgets poll unresolved orders and settle
 
 ## Retention and limits
 
-Keep `lunixi_payment_*` tables, historical profiles, Magento crypt key and the separate server key through refund/dispute retention. No financial-delete uninstall hook or destructive declarative whitelist is provided. Recurring payments, stored cards/vault, Hyvä/headless renderers, automated RMA/restocking and Adobe Commerce-only features are not implemented in 0.1.3.
+Keep `lunixi_payment_*` tables, historical profiles, Magento crypt key and the separate server key through refund/dispute retention. No financial-delete uninstall hook or destructive declarative whitelist is provided. Recurring payments, stored cards/vault, Hyvä/headless renderers, automated RMA/restocking and Adobe Commerce-only features are not implemented in 0.1.4.
 
 The repository verification record lists executed native tests, dependency/security checks and limits. No live charge, marketplace approval or complete browser-store acceptance is claimed.
 

@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.4 — 2026-10-31
+
+- Bundle candidate PHP SDK 0.29.6 to preserve real PHP 8.5 network transport under Magento's strict error handler; deprecated cURL cleanup no longer interrupts a successful or failed request.
+- Preserve existing pending reservations, payment bodies, encrypted profiles and idempotency keys through transport recovery. No payment retry or new financial operation is introduced.
+
 ## 0.1.3 — 2026-10-31
 
 - Default new checkout configuration to the existing Lunixi form on the merchant site; retain the optional hosted selector and explicit merchant settings.
