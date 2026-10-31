@@ -1,0 +1,15 @@
+.cache/
+build/
+dist/
+sdk/
+tools/vendor/
+vendor/
+.phpunit.cache/
+.phpstan-cache/
+*.pem
+*.key
+.env*
+.DS_Store
+__pycache__/
+*.pyc
+!tools/composer.lock

@@ -1,0 +1,5 @@
+[extend]
+useDefault = true
+[[allowlists]]
+description = "Generated dependencies/build outputs are excluded from source; the merchant staging tree is scanned separately with default rules."
+paths = ['''(?:^|/)(?:\.cache|build|dist|sdk|vendor|\.phpstan-cache|\.phpunit.cache)(?:/|$)''']

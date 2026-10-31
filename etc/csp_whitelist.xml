@@ -1,0 +1,2 @@
+<?xml version="1.0"?>
+<csp_whitelist xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Csp:etc/csp_whitelist.xsd"><policies><policy id="script-src"><values><value id="lunixi-checkout" type="host">https://cdn.lunixi.com</value></values></policy><policy id="connect-src"><values><value id="lunixi-gateway" type="host">https://api-gateway.lunixi.com</value></values></policy><policy id="frame-src"><values><value id="lunixi-pay" type="host">https://pay.lunixi.com</value></values></policy></policies></csp_whitelist>

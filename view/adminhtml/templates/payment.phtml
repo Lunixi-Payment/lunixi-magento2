@@ -1,0 +1,25 @@
+<?php
+/** @var \Lunixi\Payments\Block\Adminhtml\Payment $block */
+/** @var \Magento\Framework\Escaper $escaper */
+$operationId = $block->operationId();
+?>
+<p><?= $escaper->escapeHtml(__('These actions verify gateway settlement before writing native invoices or credit memos. Refunds are monetary adjustments and do not return inventory.')) ?></p>
+<form method="post" action="<?= $escaper->escapeUrl($block->getUrl('lunixi/payment/apply')) ?>">
+<?= $block->getBlockHtml('formkey') ?>
+<input type="hidden" name="order_id" value="<?= (int) $block->getData('order_id') ?>" />
+<button type="submit" name="action" value="reconcile"><?= $escaper->escapeHtml(__('Reconcile payment')) ?></button>
+</form>
+<?php if ($operationId !== null): ?>
+<form method="post" action="<?= $escaper->escapeUrl($block->getUrl('lunixi/payment/apply')) ?>">
+<?= $block->getBlockHtml('formkey') ?>
+<input type="hidden" name="order_id" value="<?= (int) $block->getData('order_id') ?>" />
+<input type="hidden" name="operation_id" value="<?= $escaper->escapeHtmlAttr($operationId) ?>" />
+<label for="lunixi-refund-amount"><?= $escaper->escapeHtml(__('Refund amount (%1)', $block->currency())) ?></label>
+<input type="text" name="amount" id="lunixi-refund-amount" inputmode="decimal" autocomplete="off" />
+<button type="submit" name="action" value="refund"><?= $escaper->escapeHtml(__('Refund payment')) ?></button>
+<button type="submit" name="action" value="capture"><?= $escaper->escapeHtml(__('Capture remaining authorization')) ?></button>
+<button type="submit" name="action" value="void"><?= $escaper->escapeHtml(__('Void authorization')) ?></button>
+</form>
+<?php else: ?>
+<p><?= $escaper->escapeHtml(__('No payment attempt is available for this order.')) ?></p>
+<?php endif; ?>

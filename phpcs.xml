@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<ruleset name="Lunixi Magento production PHP">
+  <description>PSR-12 for the native adapter; upstream-scoped SDK is verified separately.</description>
+  <file>Model</file><file>Gateway</file><file>Controller</file><file>Block</file><file>Plugin</file>
+  <arg name="extensions" value="php"/><arg name="colors"/>
+  <rule ref="PSR12"/>
+  <!-- Magento's required protected override retains its native underscore name. -->
+  <rule ref="PSR2.Methods.MethodDeclaration.Underscore">
+    <exclude-pattern>*/Block/Adminhtml/Instructions.php</exclude-pattern>
+  </rule>
+</ruleset>

@@ -1,0 +1,62 @@
+# Verification record — 0.1.0
+
+Verified on 2026-10-31, macOS arm64, **PHP 8.4.1**, **MariaDB 11.8.6/InnoDB**, official Magento Open Source **2.4.9** and real native DI/services/database. No live gateway charge or external email was sent.
+
+## Native source and security pin
+
+- GitHub tag `2.4.9`, commit `755e34dd689021c5165db9d35ecff74f7dc51527`.
+- Official source archive SHA-256: `57d31453bd8cc34fd1d7c770ed20ad85a764edbdc4e3bd065614f1413bd82ea0`.
+- Installed through actual `setup:install`, 63 native modules plus Lunixi, with source-provided Composer lock/dependencies. Search modules/daemon are omitted from this financial fixture.
+- Shared SDK **v0.29.3**, fetched successfully from the published Composer package; source reference `a725c9012020cb7b399d237984eaade7e5114157`. Scoped SDK signing and body digests are checked using independent sodium verification.
+- Original official CE security patches applied sequentially, with zero failed hunks: July → August → separate VULN-39341_249 → September → October. No patch hunk rewrites or blanket vendor updates.
+
+| Official archive | SHA-256 |
+| --- | --- |
+| 2-4-9-jul-2026.zip | `650e8e34e925653a1b3980ce053b9cb993dc2b22e72ee80b5557e03f36848984` |
+| 2-4-9-aug-2026.zip | `0f300d043b5f7f9558d2d1ffe13b91ec84b5766549adbaec1fc73278ff72b0e1` |
+| VULN-39341-composer-patches.zip | `5f98d409e627c0ac77fb9cbff4bf139c17ad69550dc06411a4b4d0aeadd669e1` |
+| 2-4-9-sep-2026.zip | `9fe17a9681d94deaaeb2ca9245e1e1bcd9fad9b3478fbcaaa8ab1a94ee4cd686` |
+| 2-4-9-oct-2026.zip | `1d995f5998a65dc46c76c31bb4cff799ebaf26121ca933ec18a708393b2f1d30` |
+
+`tools/native-security.py` creates source-component aliases under the TEST vendor directory so Adobe’s original Composer-path patches apply unchanged to GitHub source. It records/validates hashes of all patched files. The official CVT tool reports an unknown base package on this monorepo Composer lock; it does not certify PROTECTED. See [UPSTREAM-SECURITY.md](UPSTREAM-SECURITY.md) for exact audit findings, IDs, severities and official remediation scope.
+
+## Executed checks
+
+- Native `module:enable`, declarative `setup:upgrade`, clean `setup:install`, and full **9/9 native DI compile stages** passed on the standalone module, including generated interceptors. Developer modules are intentionally non-final where Magento interception requires inheritance.
+- Native PHP suite: **21 tests / 106 assertions** passed against the installed standalone artifact on the October-patched native fixture.
+- Browser loader: **2 Node tests** passed, covering structured configuration, AMD/global exports, CDN and asynchronous mount failure without exposing error contents.
+- **PHPStan level 7**, PSR-12 production adapter formatting, PHP/JS/Python syntax checks passed. The sole naming-rule exception is Magento’s required `_getElementHtml` native override.
+- Composer audits of the bundled SDK input and locked build tools: **zero advisories**. Source/default-rule merchant-artifact secret scans are run separately and returned no findings.
+- Native fixture runtime lock: **15 packages / 47 advisory records**, 4 abandoned packages. These are not bundled plugin dependencies. No claim of an entirely clean Magento platform is made.
+- EN/TR docs pass the docs site’s API-path/amount-field checks. Remote CI is defined with pinned actions, native image, source/security hashes and the same fixture; local checks are not a claim that remote PHP 8.5 CI has executed.
+
+## Reproduce
+
+Use only a disposable database named exactly `lunixi_magento`; its account must own only that schema. Store `host`, integer `port`, `database`, `username`, `password` in a private chmod600 JSON file outside public source. Bootstrap refuses another schema or a non-TEST existing native deployment configuration. The installer clears only TEST fixture caches, then rebuilds the disposable native database.
+
+```bash
+composer install --working-dir=tools --no-interaction --no-plugins --no-scripts
+php tools/build.php
+export LUNIXI_NATIVE_TEST_DESTRUCTIVE=1
+export LUNIXI_TEST_DB_CONFIG=/private/path/to/test-db.json
+export MAGENTO_ROOT=/absolute/path/to/disposable/magento-2.4.9
+export LUNIXI_TEST_MODULE_PATH="$PWD/build/module"
+php tools/native-bootstrap.php "$MAGENTO_ROOT"
+php -d memory_limit=1G tools/vendor/bin/phpunit --testdox
+node --test tests/checkout.test.cjs
+tools/vendor/bin/phpstan analyse --memory-limit=1G --no-progress
+tools/vendor/bin/phpcs --standard=phpcs.xml
+composer audit --working-dir=tools
+composer audit --working-dir=build/input --no-dev
+gitleaks dir . --config .gitleaks.toml --redact --no-banner
+# Scan the merchant tree separately with default rules and no source build exclusions.
+(cd /tmp && gitleaks dir /absolute/path/to/module/build/module --redact --no-banner)
+```
+
+The actual tests run native order placement, paid invoices, authorization/capture, partial/final fee refunds and real credit memo services, verified void, stale observations, manual hold/unhold, changed order/merchant/store/guest ownership, immutable credential/display rotation, lost create/refund recovery and three concurrent PHP processes consuming one signed event. A real database trigger forces native failure to prove rollback of invoice/order/outbox/inbox. Controller tests cover narrow read-only POST callback, fixed 303, size/path rejection, no field/body/order access and native-session owner-checked GET. Native factories come from Magento’s own generator; no replacement platform API is handwritten. Gateway I/O is deterministic TEST transport using the real scoped SDK.
+
+## Limits
+
+Local PHP 8.5, MariaDB 12.3/MySQL 8.4, full browser storefront/checkout, OpenSearch, licensed Adobe Commerce/B2B, Hyvä/headless, production SMTP and real 3DS/split/insurance flows were not executed. Follow Adobe’s current deployment matrix and security patches, then validate the complete merchant staging workflow. Financial fixtures use virtual products; physical inventory/MSI/RMA customizations require separate staging acceptance. Native refunds are monetary adjustments and never fabricate returned quantities/restocking. Native currency rounding must represent the desired amount exactly; mismatches remain review instead of falsely confirming native bookkeeping.
+
+The module has no live registry/marketplace approval assertion and does not ship Magento platform/vendor dependencies. Customer-facing returns never establish payment success. Third-party observers with external side effects need a durable outbox; uncertain post-commit mail remains review/sending instead of blind duplicate delivery.

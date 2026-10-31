@@ -1,0 +1,11 @@
+<?php
+/** @var \Lunixi\Payments\Block\Checkout $block */
+/** @var \Magento\Framework\Escaper $escaper */
+?>
+<img src="<?= $escaper->escapeUrl($block->getViewFileUrl('Lunixi_Payments::images/lunixi.svg')) ?>" width="200" alt="Lunixi" />
+<?php if ($block->getData('browser_config')): ?>
+<div id="lunixi-checkout-form" data-mage-init='<?= $escaper->escapeHtmlAttr($block->mageInitJson()) ?>'></div>
+<p id="lunixi-checkout-unavailable"><?= $escaper->escapeHtml(__('Loading the secure payment form…')) ?></p>
+<?php else: ?>
+<p><?= $escaper->escapeHtml(__('Payment is awaiting verification. Please contact the merchant before attempting another charge.')) ?></p>
+<?php endif; ?>

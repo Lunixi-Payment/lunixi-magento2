@@ -1,0 +1,54 @@
+<?xml version="1.0"?>
+<schema xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Setup/Declaration/Schema/etc/schema.xsd">
+  <table name="lunixi_payment_attempt" resource="default" engine="innodb" comment="Lunixi retained financial state">
+    <column name="order_key" xsi:type="varchar" nullable="false" comment="order_key" length="191"/>
+    <column name="payload" xsi:type="text" nullable="true" comment="payload" length="2M"/>
+    <column name="merchant_id" xsi:type="varchar" nullable="true" comment="merchant_id" length="200"/>
+    <column name="payment_id" xsi:type="varchar" nullable="true" comment="payment_id" length="200"/>
+    <column name="state" xsi:type="varchar" nullable="true" comment="state" length="32"/>
+    <column name="checked_at" xsi:type="bigint" nullable="true" comment="checked_at"/>
+    <constraint xsi:type="primary" referenceId="PRIMARY"><column name="order_key"/></constraint>
+    <index referenceId="LUNIXI_STATE_CHECKED" indexType="btree"><column name="state"/><column name="checked_at"/></index>
+    <index referenceId="LUNIXI_MERCHANT_PAYMENT" indexType="btree"><column name="merchant_id"/><column name="payment_id"/></index>
+  </table>
+  <table name="lunixi_payment_context" resource="default" engine="innodb" comment="Lunixi retained financial state">
+    <column name="order_key" xsi:type="varchar" nullable="false" comment="order_key" length="191"/>
+    <column name="native_order_id" xsi:type="int" nullable="false" comment="native_order_id"/>
+    <column name="profile_id" xsi:type="varchar" nullable="false" comment="profile_id" length="64"/>
+    <column name="payload" xsi:type="text" nullable="false" comment="payload" length="2M"/>
+    <constraint xsi:type="primary" referenceId="PRIMARY"><column name="order_key"/></constraint>
+    <constraint xsi:type="unique" referenceId="LUNIXI_CONTEXT_ORDER"><column name="native_order_id"/></constraint>
+  </table>
+  <table name="lunixi_payment_profile" resource="default" engine="innodb" comment="Lunixi retained financial state">
+    <column name="profile_id" xsi:type="varchar" nullable="false" comment="profile_id" length="64"/>
+    <column name="merchant_id" xsi:type="varchar" nullable="false" comment="merchant_id" length="200"/>
+    <column name="payload" xsi:type="text" nullable="false" comment="payload" length="2M"/>
+    <constraint xsi:type="primary" referenceId="PRIMARY"><column name="profile_id"/></constraint>
+  </table>
+  <table name="lunixi_payment_event" resource="default" engine="innodb" comment="Lunixi retained financial state">
+    <column name="event_hash" xsi:type="varchar" nullable="false" comment="event_hash" length="64"/>
+    <column name="body_hash" xsi:type="varchar" nullable="false" comment="body_hash" length="64"/>
+    <column name="received_at" xsi:type="bigint" nullable="false" comment="received_at"/>
+    <constraint xsi:type="primary" referenceId="PRIMARY"><column name="event_hash"/></constraint>
+  </table>
+  <table name="lunixi_payment_operation" resource="default" engine="innodb" comment="Lunixi retained financial state">
+    <column name="operation_id" xsi:type="varchar" nullable="false" comment="operation_id" length="32"/>
+    <column name="order_key" xsi:type="varchar" nullable="false" comment="order_key" length="191"/>
+    <column name="action" xsi:type="varchar" nullable="true" comment="action" length="16"/>
+    <column name="amount" xsi:type="bigint" nullable="true" comment="amount"/>
+    <column name="requested_minor" xsi:type="bigint" nullable="true" comment="original native amount"/>
+    <column name="state" xsi:type="varchar" nullable="false" comment="state" length="16"/>
+    <column name="created_at" xsi:type="bigint" nullable="false" comment="created_at"/>
+    <constraint xsi:type="primary" referenceId="PRIMARY"><column name="operation_id"/></constraint>
+    <index referenceId="LUNIXI_OPERATION_ORDER" indexType="btree"><column name="order_key"/><column name="state"/></index>
+  </table>
+  <table name="lunixi_payment_outbox" resource="default" engine="innodb" comment="Lunixi retained financial state">
+    <column name="message_id" xsi:type="varchar" nullable="false" comment="message_id" length="64"/>
+    <column name="order_id" xsi:type="int" nullable="false" comment="order_id"/>
+    <column name="kind" xsi:type="varchar" nullable="false" comment="kind" length="16"/>
+    <column name="entity_id" xsi:type="int" nullable="false" comment="entity_id"/>
+    <column name="state" xsi:type="varchar" nullable="false" comment="state" length="16"/>
+    <column name="created_at" xsi:type="bigint" nullable="false" comment="created_at"/>
+    <constraint xsi:type="primary" referenceId="PRIMARY"><column name="message_id"/></constraint>
+  </table>
+</schema>

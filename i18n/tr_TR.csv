@@ -1,0 +1,30 @@
+"Authorize now, capture later","Şimdi ön provizyon al, daha sonra tahsil et"
+Capture remaining authorization,Kalan ön provizyonu tahsil et
+Checkout title,Ödeme adımı başlığı
+Complete your payment securely with Lunixi.,Ödemenizi Lunixi ile güvenle tamamlayın.
+Ed25519 PKCS8 private key,Ed25519 PKCS8 özel anahtarı
+Enable Lunixi,Lunixi etkin
+Enabled: hosted form. Disabled: embedded Lunixi form. Payment methods are managed in the Lunixi panel.,Etkin: yönlendirmeli form. Kapalı: gömülü Lunixi formu. Ödeme yöntemleri Lunixi panelinden yönetilir.
+Lunixi Payments,Lunixi Ödemeler
+Lunixi payment,Lunixi ödemesi
+Manage Lunixi payment,Lunixi ödemesini yönet
+Merchant ID,İş yeri kimliği
+Merchant SECRET key identifier,İş yeri SECRET anahtar kimliği
+No payment attempt is available for this order.,Bu sipariş için ödeme denemesi bulunamadı.
+"Paste base64 PKCS8 DER, or PEM with literal \n line separators. The value is encrypted and never returned to the browser.",Base64 PKCS8 DER veya satır ayıracı olarak \n içeren PEM yapıştırın. Değer şifrelenir ve tarayıcıya geri gönderilmez.
+Payment is awaiting verification. Please contact the merchant before attempting another charge.,Ödeme doğrulanmayı bekliyor. Yeni bir ödeme denemeden önce iş yeri ile iletişime geçin.
+Place Order,Siparişi tamamla
+Reconcile payment,Ödemeyi uzlaştır
+Redirect to pay.lunixi.com,pay.lunixi.com adresine yönlendir
+Refund amount (%1),İade tutarı (%1)
+Refund payment,Ödemeyi iade et
+Register this HTTPS webhook URL in Lunixi. Retain prior profiles for refunds.,Bu HTTPS webhook adresini Lunixi paneline kaydedin. İadeler için önceki profilleri saklayın.
+Save valid credentials and configure the server encryption key to display the webhook URL.,Webhook adresini görmek için geçerli erişim bilgilerini kaydedip sunucu şifreleme anahtarını ayarlayın.
+The operation is pending or requires review. Reconcile the saved operation before retrying.,İşlem bekliyor veya inceleme gerektiriyor. Yeniden denemeden önce kayıtlı işlemi uzlaştırın.
+The payment form could not load. Contact the merchant before attempting another payment.,Ödeme formu yüklenemedi. Yeni bir ödeme denemeden önce iş yeri ile iletişime geçin.
+These actions verify gateway settlement before writing native invoices or credit memos. Refunds are monetary adjustments and do not return inventory.,"Bu işlemler, platform faturası veya iade belgesi oluşturmadan önce ödeme sonucunu doğrular. İadeler parasal düzeltmedir; stoğa ürün eklemez."
+Verified payment state has been applied to the native order.,Doğrulanan ödeme durumu platform siparişine uygulandı.
+Void authorization,Ön provizyonu iptal et
+Webhook signing secret,Webhook imza sırrı
+Your payment is being verified. The merchant will confirm the order after verification.,"Ödemeniz doğrulanıyor. İş yeri, doğrulama tamamlandığında siparişi onaylayacaktır."
+Loading the secure payment form…,Güvenli ödeme formu yükleniyor…
