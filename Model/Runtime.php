@@ -185,6 +185,7 @@ class Runtime
             return new CheckoutSession(
                 $record['paymentId'],
                 $this->settings->box()->decrypt($record['token']),
+                !empty($record['paymentPageUrl']) ? $this->settings->box()->decrypt($record['paymentPageUrl']) : '',
             );
         });
     }

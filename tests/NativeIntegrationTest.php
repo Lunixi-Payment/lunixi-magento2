@@ -113,12 +113,34 @@ final class NativeIntegrationTest extends TestCase
     {
         $fixture=new NativeFixture();$fixture->start();$id=(int)$fixture->order->getId();$before=$fixture->runtime->context($id);
         $writer=$fixture->om->get(\Magento\Framework\App\Config\Storage\WriterInterface::class);
-        $writer->save('payment/lunixi/merchant_id','new-configured-merchant');$writer->save('payment/lunixi/hosted','0');
+        $writer->save('payment/lunixi/merchant_id','new-configured-merchant');$writer->save('payment/lunixi/hosted','1');
         $fixture->om->get(\Magento\Framework\App\Config\ReinitableConfigInterface::class)->reinit();
         $fixture->runtime->start($id);self::assertSame($before,$fixture->runtime->context($id));self::assertCount(1,$fixture->http->createKeys);
         $fixture->runtime->reconcile($id);self::assertTrue($fixture->fresh()->hasInvoices());
     }
 
+    public function testEmbeddedDefaultAndIndependentBackendUrlSurviveNativeSessionReload():void
+    {
+        $fixture=new NativeFixture();$fixture->start();$id=(int)$fixture->order->getId();
+        self::assertFalse($fixture->runtime->context($id)['hosted']);
+        $session=$fixture->runtime->browser($id);
+        self::assertSame('synthetic-browser-token',$session->token);
+        self::assertSame('https://pay.lunixi.com/payment/separate-backend-hosted-token',$session->hostedUrl());
+        $key=$fixture->runtime->context($id)['orderKey'];$record=$fixture->ledger->transaction($key,fn()=>$fixture->ledger->load($key));
+        self::assertStringNotContainsString('separate-backend-hosted-token',$record['paymentPageUrl']);
+        $fixture->runtime->start($id);self::assertCount(1,$fixture->http->createKeys);
+        self::assertSame($session->hostedUrl(),$fixture->runtime->browser($id)->hostedUrl());
+    }
+    public function testMissingAndLegacyBackendUrlNeverCreateReplacementIntent():void
+    {
+        $fixture=new NativeFixture();$fixture->http->paymentPageUrl=null;$fixture->start();$id=(int)$fixture->order->getId();
+        $session=$fixture->runtime->browser($id);self::assertSame('synthetic-browser-token',$session->token);self::assertSame('',$session->paymentPageUrl);
+        $context=$fixture->runtime->context($id);
+        $fixture->ledger->transaction($context['orderKey'],function()use($fixture,$context):void{$record=$fixture->ledger->load($context['orderKey']);unset($record['paymentPageUrl']);$fixture->ledger->save($context['orderKey'],$record);});
+        $fixture->runtime->start($id);self::assertCount(1,$fixture->http->createKeys);
+        $legacy=$fixture->runtime->browser($id);self::assertSame('synthetic-browser-token',$legacy->token);
+        $this->expectException(\RuntimeException::class);$legacy->hostedUrl();
+    }
     public function testStoreMismatchCannotExposeAnOwnedGuestPayment():void
     {
         $fixture=new NativeFixture();$id=(int)$fixture->order->getId();

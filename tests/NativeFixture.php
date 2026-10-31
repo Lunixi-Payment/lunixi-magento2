@@ -41,7 +41,7 @@ final class NativeFixture
         putenv('LUNIXI_MAGENTO_ENCRYPTION_KEY='.base64_encode(str_repeat(chr(9),32)));
         $label='PRIVATE KEY';$private="-----BEGIN {$label}-----\n".chunk_split(base64_encode(hex2bin('302e020100300506032b657004220420').str_repeat(chr(7),32)),64,"\n")."-----END {$label}-----\n";
         $writer=$native->get(WriterInterface::class);$encrypt=$native->get(EncryptorInterface::class);
-        foreach(['active'=>'1','hosted'=>'1','preauth'=>'0','merchant_id'=>'merchant-'.bin2hex(random_bytes(8)), 'key_id'=>$encrypt->encrypt('mk_test_synthetic'), 'private_key'=>$encrypt->encrypt($private),'webhook_secret'=>$encrypt->encrypt('synthetic-webhook-secret')] as $key=>$value){$writer->save('payment/lunixi/'.$key,$value);}
+        foreach(['active'=>'1','hosted'=>'0','preauth'=>'0','merchant_id'=>'merchant-'.bin2hex(random_bytes(8)), 'key_id'=>$encrypt->encrypt('mk_test_synthetic'), 'private_key'=>$encrypt->encrypt($private),'webhook_secret'=>$encrypt->encrypt('synthetic-webhook-secret')] as $key=>$value){$writer->save('payment/lunixi/'.$key,$value);}
         $native->get(ReinitableConfigInterface::class)->reinit();
         $settings=$native->get(Settings::class);$this->ledger=$native->get(Ledger::class);
         $this->http=new NativeHttp($settings->value('merchant_id',1));$factory=new ClientFactory($native->get(TokenCache::class),$this->http);
@@ -76,6 +76,7 @@ final class NativeHttp implements HttpClientInterface
 {
     public string $paymentId;
     public string $status='CAPTURED';
+    public ?string $paymentPageUrl='https://pay.lunixi.com/payment/separate-backend-hosted-token';
     public int $fee=0;
     public int $refunded=0;
     public bool $uncertainRefund=false;
@@ -101,7 +102,7 @@ final class NativeHttp implements HttpClientInterface
         if(str_ends_with($path,'/intents')){
             $this->body=json_decode($body,true,32,JSON_THROW_ON_ERROR);$this->createKeys[]=$headers['Idempotency-Key'];
             if($this->uncertainCreate){$this->uncertainCreate=false;throw new \RuntimeException('Synthetic lost create response');}
-            return new HttpResponse(200,[],json_encode(['data'=>['paymentId'=>$this->paymentId,'token'=>'synthetic-browser-token']]));
+            return new HttpResponse(200,[],json_encode(['data'=>['paymentId'=>$this->paymentId,'token'=>'synthetic-browser-token']+($this->paymentPageUrl===null?[]:['paymentPageUrl'=>$this->paymentPageUrl])]));
         }
         $amount=$this->body['amount']+$this->fee;
         if($method==='GET')return new HttpResponse(200,[],json_encode(['data'=>['id'=>$this->paymentId,'merchantId'=>$this->wrongMerchant?'wrong-merchant':$this->merchantId,'orderId'=>$this->body['orderId'],'amount'=>$amount,'currency'=>$this->body['currency'],'status'=>$this->status,'metadata'=>$this->body['metadata']], 'details'=>['capturedAmount'=>in_array($this->status,['AUTHORIZED','VOIDED','FAILED','EXPIRED'],true)?0:$amount,'refundedAmount'=>$this->refunded]]));

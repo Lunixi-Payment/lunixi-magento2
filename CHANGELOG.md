@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.1.3 — 2026-10-31
+
+- Default new checkout configuration to the existing Lunixi form on the merchant site; retain the optional hosted selector and explicit merchant settings.
+- Redirect only to a validated backend `paymentPageUrl`; its opaque token can differ from the embedded form token. Missing URLs keep embedded checkout available and hosted checkout on hold without creating another intent/key.
+- Preserve historical checkout modes, encrypted credentials/tokens, immutable request bodies and existing idempotency/3DS/split return behavior.
+- Bundle shared PHP SDK 0.29.5 with validated URL handling and encrypted ledger persistence.
+
 ## 0.1.2 — 2026-10-31
 
 - Use root-confined relative native-source aliases for Ubuntu 24 GNU patch 2.7.6; normalize known absolute aliases from a failed fixture bootstrap.

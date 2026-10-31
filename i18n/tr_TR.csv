@@ -28,3 +28,5 @@ Void authorization,Ön provizyonu iptal et
 Webhook signing secret,Webhook imza sırrı
 Your payment is being verified. The merchant will confirm the order after verification.,"Ödemeniz doğrulanıyor. İş yeri, doğrulama tamamlandığında siparişi onaylayacaktır."
 Loading the secure payment form…,Güvenli ödeme formu yükleniyor…
+Use optional hosted checkout,İsteğe bağlı yönlendirmeli ödeme kullan
+Disabled by default: the existing Lunixi form opens on this store. Enable to redirect using the backend paymentPageUrl. Payment methods are managed in the Lunixi panel.,Varsayılan olarak kapalıdır: mevcut Lunixi formu bu mağazada açılır. Backend paymentPageUrl ile yönlendirmek için etkinleştirin. Ödeme yöntemleri Lunixi panelinden yönetilir.

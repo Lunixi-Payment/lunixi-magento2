@@ -1,4 +1,4 @@
-# Verification record — 0.1.2
+# Verification record — 0.1.3
 
 Verified on 2026-10-31, macOS arm64, **PHP 8.4.1**, **MariaDB 11.8.6/InnoDB**, official Magento Open Source **2.4.9** and real native DI/services/database. No live gateway charge or external email was sent.
 
@@ -7,7 +7,7 @@ Verified on 2026-10-31, macOS arm64, **PHP 8.4.1**, **MariaDB 11.8.6/InnoDB**, o
 - GitHub tag `2.4.9`, commit `755e34dd689021c5165db9d35ecff74f7dc51527`.
 - Official source archive SHA-256: `57d31453bd8cc34fd1d7c770ed20ad85a764edbdc4e3bd065614f1413bd82ea0`.
 - Installed through actual `setup:install`, 63 native modules plus Lunixi, with source-provided Composer lock/dependencies. Search modules/daemon are omitted from this financial fixture.
-- Shared SDK **v0.29.3**, fetched successfully from the published Composer package; source reference `a725c9012020cb7b399d237984eaade7e5114157`. Scoped SDK signing and body digests are checked using independent sodium verification.
+- Current module build pins shared SDK **0.29.5**. The earlier baseline used published **v0.29.3**, source reference `a725c9012020cb7b399d237984eaade7e5114157`. Scoped SDK signing and body digests are checked using independent sodium verification.
 - Original official CE security patches applied sequentially, with zero failed hunks: July → August → separate VULN-39341_249 → September → October. No patch hunk rewrites or blanket vendor updates.
 - Fresh **Linux aarch64 / Ubuntu 24 glibc 2.39**, official **GNU patch 2.7.6-7build3**: all five original patches passed strict `--fuzz=0` dry-run and application. All **75** patched file hashes matched the independently verified official fixture. Absolute source aliases reproduced the exact July line 1555/1572 failure; the root-confined relative alias helper fixes it without relaxing patch options.
 
@@ -26,7 +26,7 @@ Verified on 2026-10-31, macOS arm64, **PHP 8.4.1**, **MariaDB 11.8.6/InnoDB**, o
 - Native `module:enable`, declarative `setup:upgrade`, clean `setup:install`, and full **9/9 native DI compile stages** passed on the standalone module, including generated interceptors. Developer modules are intentionally non-final where Magento interception requires inheritance.
 - Native source alias helper: **7** tests passed for relative creation, idempotency, normalization of known absolute aliases, foreign/escaping path rejection and preservation of a real installed vendor directory.
 - Public Composer export: removed the optional module Composer `version` field, installed locked tools in a clean source copy, then built the standalone ZIP using the authoritative bundled `VERSION`. Six actual-builder metadata cases (stripped, matching, conflicting, null, missing and unsafe) passed.
-- Native PHP suite: **21 tests / 106 assertions** passed against the installed standalone artifact on the October-patched native fixture.
+- Native PHP suite: **23 tests / 117 assertions** passed against the installed standalone artifact on the October-patched native fixture.
 - Browser loader: **2 Node tests** passed, covering structured configuration, AMD/global exports, CDN and asynchronous mount failure without exposing error contents.
 - **PHPStan level 7**, PSR-12 production adapter formatting, PHP/JS/Python syntax checks passed. The sole naming-rule exception is Magento’s required `_getElementHtml` native override.
 - Composer audits of the bundled SDK input and locked build tools: **zero advisories**. Source/default-rule merchant-artifact secret scans are run separately and returned no findings.
@@ -65,3 +65,7 @@ The actual tests run native order placement, paid invoices, authorization/captur
 Local PHP 8.5, MariaDB 12.3/MySQL 8.4, full browser storefront/checkout, OpenSearch, licensed Adobe Commerce/B2B, Hyvä/headless, production SMTP and real 3DS/split/insurance flows were not executed. Follow Adobe’s current deployment matrix and security patches, then validate the complete merchant staging workflow. Financial fixtures use virtual products; physical inventory/MSI/RMA customizations require separate staging acceptance. Native refunds are monetary adjustments and never fabricate returned quantities/restocking. Native currency rounding must represent the desired amount exactly; mismatches remain review instead of falsely confirming native bookkeeping.
 
 The module has no live registry/marketplace approval assertion and does not ship Magento platform/vendor dependencies. Customer-facing returns never establish payment success. Third-party observers with external side effects need a durable outbox; uncertain post-commit mail remains review/sending instead of blind duplicate delivery.
+
+## 0.1.3 checkout correction
+
+The embedded form is the new default; optional hosted mode uses the validated backend paymentPageUrl. Its token is independent of the browser token. Native session rehydration decrypts the saved URL. Missing/legacy URL records retain embedded checkout and existing keys; hosted access fails closed. Targeted native suite: 23 tests /117 assertions, PHPStan7, PHPCS22 and browser loader2 checks passed with local shared SDK0.29.5. No new live/licensed/full-store acceptance was run; the earlier platform security limitations remain.

@@ -2,7 +2,9 @@
 
 # Lunixi Payments for Magento 2
 
-Native payment module **0.1.2**, targeting Magento Open Source / Adobe Commerce **2.4.9 payment APIs**. It uses the modern Magento Payment Adapter and the shared [Lunixi PHP SDK 0.29.3](https://github.com/Lunixi-Payment/lunixi-php). Choose the existing embedded Lunixi form or redirect to `https://pay.lunixi.com/payment/<token>`.
+The existing Lunixi form opens **on the merchant website by default**. Hosted checkout remains optional and uses only the validated backend `paymentPageUrl`. Its opaque token can differ from the embedded token; the module never builds this URL from that token. Missing or legacy URLs keep embedded checkout available; hosted checkout stays on hold/reconciliation without a new intent or key. Existing attempts keep their saved mode, request body, profile and key. The official form/panel controls available methods and multi-card options.
+
+Native payment module **0.1.3**, targeting Magento Open Source / Adobe Commerce **2.4.9 payment APIs**. It uses the modern Magento Payment Adapter and the shared [Lunixi PHP SDK 0.29.5](https://github.com/Lunixi-Payment/lunixi-php). The existing Lunixi form is embedded by default; optional redirect uses the backend `paymentPageUrl`.
 
 Available methods, installments, insurance and split eligibility are managed in the **Lunixi panel**. The module does not duplicate method filters or collect card data. Product-specific capabilities still depend on merchant/form activation and the required product context.
 
@@ -23,7 +25,7 @@ composer install --working-dir=tools --no-interaction --no-plugins --no-scripts
 php tools/build.php
 ```
 
-The builder fetches exactly `lunixi/php-sdk:0.29.3`, scopes it into `Lunixi\Payments\Vendor` with pinned build dependencies and includes its MIT license. A trusted source checkout can be supplied as `php tools/build.php /absolute/path/to/lunixi-php`. Output: `dist/lunixi-magento2-0.1.2.zip` and SHA-256 file. Source checkouts must be built before enabling the module; the generated SDK is deliberately excluded from source control. The source and ZIP include the authoritative `VERSION` file. Public Composer exports may omit their optional `version` field because Packagist reads Git tags; the builder supports both forms and rejects a conflicting field.
+The builder fetches exactly `lunixi/php-sdk:0.29.5`, scopes it into `Lunixi\Payments\Vendor` with pinned build dependencies and includes its MIT license. A trusted source checkout can be supplied as `php tools/build.php /absolute/path/to/lunixi-php`. Output: `dist/lunixi-magento2-0.1.3.zip` and SHA-256 file. Source checkouts must be built before enabling the module; the generated SDK is deliberately excluded from source control. The source and ZIP include the authoritative `VERSION` file. Public Composer exports may omit their optional `version` field because Packagist reads Git tags; the builder supports both forms and rejects a conflicting field.
 
 On a backed-up staging Magento installation, extract the ZIP at the store root. It contains `app/code/Lunixi/Payments/`:
 
@@ -43,7 +45,7 @@ Set `LUNIXI_MAGENTO_ENCRYPTION_KEY` to the base64 representation of an independe
 
 Under **Stores → Configuration → Sales → Payment Methods → Lunixi Payments**, enable the method and enter merchant ID, merchant SECRET key identifier, Ed25519 PKCS8 private key and webhook secret. The private-key field accepts base64 PKCS8 DER or PEM with literal `\n` separators. Native encrypted configuration fields mask saved secrets. TEST/LIVE is determined by the API key; the HTTPS gateway origin is fixed.
 
-Select **Redirect to pay.lunixi.com** for hosted checkout, or disable it for the shared embedded form. **Authorize now, capture later** keeps an authorized order pending; authorization does not create a paid invoice. Changed secrets create encrypted immutable profiles; existing attempts retain their original merchant, currency, body, callback, display mode and credentials.
+Leave **Use optional hosted checkout** disabled for the default merchant-site form; enable it only for the backend-URL hosted flow. **Authorize now, capture later** keeps an authorized order pending; authorization does not create a paid invoice. Changed secrets create encrypted immutable profiles; existing attempts retain their original merchant, currency, body, callback, display mode and credentials.
 
 Register the displayed HTTPS webhook URL in Lunixi for the correct environment and payment events. Retain prior profiles/endpoint secrets while old payments can require reconciliation or refunds. Use HTTPS, trusted proxy headers and your store's CSP. The module allowlists fixed official SDK/gateway/form origins and never renders gateway-returned HTML.
 
@@ -61,7 +63,7 @@ Native fraud/manual holds and canceled orders are preserved even when funded. Re
 
 ## Retention and verification
 
-Disabling/removing the module does not run a financial-data deletion hook. No destructive declarative whitelist or uninstall routine is provided. Preserve `lunixi_payment_*` tables, historical encrypted profiles, Magento crypt key and the separate server key; native destructive database cleanup remains an explicit operator action. Recurring payments, vault/card storage, Hyvä/headless checkout renderers, RMA automation and Adobe Commerce-only modules are not implemented in 0.1.2.
+Disabling/removing the module does not run a financial-data deletion hook. No destructive declarative whitelist or uninstall routine is provided. Preserve `lunixi_payment_*` tables, historical encrypted profiles, Magento crypt key and the separate server key; native destructive database cleanup remains an explicit operator action. Recurring payments, vault/card storage, Hyvä/headless checkout renderers, RMA automation and Adobe Commerce-only modules are not implemented in 0.1.3.
 
 See [docs/VERIFICATION.md](docs/VERIFICATION.md) for actual test commands, native fixture scope and limits; [English guide](docs/guide.en.md), [Türkçe rehber](docs/guide.tr.md), [security reporting](SECURITY.md), [changelog](CHANGELOG.md), [MIT](LICENSE). No live charge or marketplace approval is claimed.
 

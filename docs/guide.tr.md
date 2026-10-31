@@ -1,10 +1,12 @@
 # Magento 2 / Adobe Commerce
 
-Lunixi Payments 0.1.2, Magento Payment Adapter yapısını ortak PHP SDK 0.29.3 ile birleştirir. Kaynak: [lunixi-magento2](https://github.com/Lunixi-Payment/lunixi-magento2). Hedef API serisi **2.4.9**; gerçek platform testleri Magento Open Source üzerinde çalıştırıldı. Lisanslı Adobe Commerce kurulumu test edilmedi.
+Mevcut Lunixi formu varsayılan olarak **mağazanın kendi sitesinde açılır**. Yönlendirmeli ödeme isteğe bağlıdır ve yalnız backend’in döndürdüğü doğrulanmış `paymentPageUrl` kullanılır. Adresin opak token’ı gömülü token’dan farklı olabilir; modül adresi token’dan üretmez. Eksik/eski adres gömülü ödemeyi engellemez; yönlendirmeli ödeme yeni intent veya anahtar açmadan inceleme/uzlaştırmada kalır. Mevcut denemelerin kayıtlı modu, gövdesi, profili ve anahtarı korunur. Yöntemler ve çoklu kart mevcut Lunixi formu/panelinden yönetilir.
+
+Lunixi Payments 0.1.3, Magento Payment Adapter yapısını ortak PHP SDK 0.29.5 ile birleştirir. Kaynak: [lunixi-magento2](https://github.com/Lunixi-Payment/lunixi-magento2). Hedef API serisi **2.4.9**; gerçek platform testleri Magento Open Source üzerinde çalıştırıldı. Lisanslı Adobe Commerce kurulumu test edilmedi.
 
 ## Kurulum
 
-Hazır `lunixi-magento2-0.1.2.zip` dosyasının SHA-256 değerini doğrulayıp mağaza köküne çıkarın. Modül `app/code/Lunixi/Payments` altında bulunur. ZIP, ad alanı ayrılmış SDK içerir; modül için Composer bağımlılığı indirmeniz gerekmez.
+Hazır `lunixi-magento2-0.1.3.zip` dosyasının SHA-256 değerini doğrulayıp mağaza köküne çıkarın. Modül `app/code/Lunixi/Payments` altında bulunur. ZIP, ad alanı ayrılmış SDK içerir; modül için Composer bağımlılığı indirmeniz gerekmez.
 
 ```bash
 php bin/magento module:enable Lunixi_Payments
@@ -14,7 +16,7 @@ php bin/magento setup:static-content:deploy en_US tr_TR
 php bin/magento cache:clean
 ```
 
-Kaynak koddan paketlemek için `composer install --working-dir=tools --no-plugins --no-scripts`, ardından `php tools/build.php` çalıştırılır. Bağımlılık tam olarak `lunixi/php-sdk:0.29.3` sürümüdür. Güvenilir yerel SDK klasörü `php tools/build.php /mutlak/yol/lunixi-php` ile verilebilir. Kaynak çalışma kopyasını etkinleştirmeden önce paketleyin. GitHub kaynağı, modülün Composer kayıt sisteminde veya Adobe Marketplace'te yayımlandığı anlamına gelmez.
+Kaynak koddan paketlemek için `composer install --working-dir=tools --no-plugins --no-scripts`, ardından `php tools/build.php` çalıştırılır. Bağımlılık tam olarak `lunixi/php-sdk:0.29.5` sürümüdür. Güvenilir yerel SDK klasörü `php tools/build.php /mutlak/yol/lunixi-php` ile verilebilir. Kaynak çalışma kopyasını etkinleştirmeden önce paketleyin. GitHub kaynağı, modülün Composer kayıt sisteminde veya Adobe Marketplace'te yayımlandığı anlamına gelmez.
 
 Canlı ortamda Adobe'nin güncel PHP, veritabanı, servis gereksinimlerini ve güvenlik yamalarını uygulayın. Yerel test ortamı PHP 8.4.1, MariaDB 11.8.6/InnoDB, resmi Magento Open Source 2.4.9 ve 63 yerleşik modülden oluştu; bunlara Lunixi eklendi. Finansal test kurulumunda arama modülleri kapalıydı. Bu sonuç, gerçek servis/veritabanı kabulüdür; mağazanın tarayıcı akışı, arama ve lisanslı Commerce özellikleri ayrıca test edilmelidir. Adobe'nin güncel şirket içi 2.4.9 tablosunda PHP 8.5 ve MariaDB 12.3/MySQL 8.4 yer alır. → [Sistem gereksinimleri](https://experienceleague.adobe.com/en/docs/commerce-operations/installation-guide/system-requirements)
 
@@ -40,7 +42,7 @@ Gösterilen **HTTPS webhook adresini** doğru ortam ve ödeme olayları için Lu
 
 ## Yönlendirmeli veya gömülü form
 
-Yönlendirmeli akış müşteriyi `https://pay.lunixi.com/payment/<token>` adresine götürür. Gömülü akış, yalnızca resmi `https://cdn.lunixi.com/lunixi-checkout.min.js` paketini yükleyip mevcut Lunixi formunu açar. Tarayıcı token'ı gösterilmeden önce müşteri/oturum ve sipariş sahipliği denetlenir. Dönüş sayfası ödeme başarısına karar vermez.
+Yönlendirmeli akış müşteriyi `paymentPageUrl` adresine götürür. Gömülü akış, yalnızca resmi `https://cdn.lunixi.com/lunixi-checkout.min.js` paketini yükleyip mevcut Lunixi formunu açar. Tarayıcı token'ı gösterilmeden önce müşteri/oturum ve sipariş sahipliği denetlenir. Dönüş sayfası ödeme başarısına karar vermez.
 
 Yöntemler, taksit, sigorta ve bölünmüş ödeme uygunluğu **Lunixi panelinden** yönetilir; modülde aynı yöntemleri tekrar açıp kapatan ayarlar bulunmaz. Ürün özellikleri iş yeri/form aktivasyonuna ve gerekli ürün bağlamına bağlıdır. Modül ham kart verisi toplamaz ve gateway'den gelen HTML'i basmaz. HTTPS, güvenilir proxy başlıkları ve resmi form kaynaklarına izin veren CSP kullanın.
 
@@ -75,7 +77,7 @@ Magento cron'u çalıştırın. Ayrı dönen bütçeler, bekleyen ödemeleri ve 
 
 ## Saklama ve kapsam
 
-İade/itiraz saklama süresince `lunixi_payment_*` tablolarını, geçmiş profilleri, Magento crypt anahtarını ve ayrı sunucu anahtarını koruyun. Finansal kayıtları silen kaldırma kancası veya yıkıcı şema whitelist dosyası sağlanmaz. 0.1.2 sürümünde abonelik, kart saklama/vault, Hyvä/headless ödeme arayüzleri, otomatik RMA/stok iadesi ve yalnızca Adobe Commerce'e ait özellikler uygulanmadı.
+İade/itiraz saklama süresince `lunixi_payment_*` tablolarını, geçmiş profilleri, Magento crypt anahtarını ve ayrı sunucu anahtarını koruyun. Finansal kayıtları silen kaldırma kancası veya yıkıcı şema whitelist dosyası sağlanmaz. 0.1.3 sürümünde abonelik, kart saklama/vault, Hyvä/headless ödeme arayüzleri, otomatik RMA/stok iadesi ve yalnızca Adobe Commerce'e ait özellikler uygulanmadı.
 
 Depodaki doğrulama kaydı, gerçekten çalıştırılan testleri ve sınırlarını listeler. Canlı tahsilat, marketplace onayı veya eksiksiz tarayıcı mağaza kabulü iddia edilmez.
 
