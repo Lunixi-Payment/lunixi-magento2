@@ -2,21 +2,21 @@
 
 # Lunixi Payments for Magento 2
 
-**Verified public merchant ZIP 0.1.3:** [`lunixi-magento2-0.1.3.zip`](https://github.com/Lunixi-Payment/lunixi-magento2/releases/download/v0.1.3/lunixi-magento2-0.1.3.zip) · [SHA256SUMS](https://github.com/Lunixi-Payment/lunixi-magento2/releases/download/v0.1.3/SHA256SUMS) · [Release v0.1.3](https://github.com/Lunixi-Payment/lunixi-magento2/releases/tag/v0.1.3). The CI-built installation package was downloaded and verified on 2026-10-31. Use this asset rather than GitHub's automatic source archive.
+**Current verified merchant ZIP 0.1.4:** [`lunixi-magento2-0.1.4.zip`](https://github.com/Lunixi-Payment/lunixi-magento2/releases/download/v0.1.4/lunixi-magento2-0.1.4.zip) · [SHA256SUMS](https://github.com/Lunixi-Payment/lunixi-magento2/releases/download/v0.1.4/SHA256SUMS) · [Release v0.1.4](https://github.com/Lunixi-Payment/lunixi-magento2/releases/tag/v0.1.4) · [Passing release CI](https://github.com/Lunixi-Payment/lunixi-magento2/actions/runs/41242098729).
 
-Public CI ZIP SHA256: `fff93235ddf631c1b7da2e20b66b1f1bf69bdf0e0f73a1bfdbd0aa1318ac6ad9`.
+Public ZIP SHA-256: `325625fdaf9f4680ebde1227354ab5c6116dd16d9c123ad7193a41bd96fcdcf2`. The downloaded archive passed public checksum, GitHub asset digest and ZIP CRC checks on 1 November 2026. Use this installation package rather than GitHub’s automatic source archive.
 
 The existing Lunixi form opens **on the merchant website by default**. Hosted checkout remains optional and uses only the validated backend `paymentPageUrl`. Its opaque token can differ from the embedded token; the module never builds this URL from that token. Missing or legacy URLs keep embedded checkout available; hosted checkout stays on hold/reconciliation without a new intent or key. Existing attempts keep their saved mode, request body, profile and key. The official form/panel controls available methods and multi-card options.
 
-Prepared candidate payment module **0.1.4**, targeting Magento Open Source / Adobe Commerce **2.4.9 payment APIs**. It uses the modern Magento Payment Adapter and the shared [Lunixi PHP SDK 0.29.6](https://github.com/Lunixi-Payment/lunixi-php). The existing Lunixi form is embedded by default; optional redirect uses the backend `paymentPageUrl`.
+Payment module **0.1.4**, targeting Magento Open Source / Adobe Commerce **2.4.9 payment APIs**. It uses the modern Magento Payment Adapter and the shared [Lunixi PHP SDK 0.29.6](https://github.com/Lunixi-Payment/lunixi-php). The existing Lunixi form is embedded by default; optional redirect uses the backend `paymentPageUrl`.
 
 Available methods, installments, insurance and split eligibility are managed in the **Lunixi panel**. The module does not duplicate method filters or collect card data. Product-specific capabilities still depend on merchant/form activation and the required product context.
 
-Candidate 0.1.4 bundles PHP SDK 0.29.6 to fix strict PHP 8.5 transport handling. The public merchant ZIP above remains 0.1.3 until its replacement is published.
+Release 0.1.4 bundles published PHP SDK 0.29.6 to fix strict PHP 8.5 transport handling. Its current public ZIP and passing CI are verified above.
 
 ## Compatibility
 
-Actual native installation, schema, DI and financial-service tests use official **Magento Open Source 2.4.9**, local **PHP 8.4.1**, **MariaDB 11.8.6/InnoDB**, and a minimal installation of 63 native modules plus Lunixi. That earlier financial fixture omitted search. Additional candidate acceptance used the full 223-module Magento Open Source 2.4.9 store on PHP 8.5.12, MariaDB 12.3 and OpenSearch 3.9.0, including genuine HTTPS guest-cart/order/checkout/webhook routes with a controlled local TLS provider. Licensed Adobe Commerce and bank/card acceptance were not tested.
+Current native acceptance used the full **223-module Magento Open Source 2.4.9** store on **PHP 8.5.12 / MariaDB 12.3.3 / InnoDB / OpenSearch 3.9.0**, including actual HTTPS guest-cart/order/checkout/webhook routes with a controlled local TLS provider. **23 native tests / 117 assertions** passed. The earlier 63-module PHP 8.4.1/MariaDB 11.8.6 fixture is historical. No full browser/CDN/card/3DS or licensed Adobe Commerce acceptance is claimed.
 
 Production deployments must follow Adobe's [current system requirements](https://experienceleague.adobe.com/en/docs/commerce-operations/installation-guide/system-requirements) and security patches. Adobe's current 2.4.9 on-premises matrix lists PHP 8.5 and MariaDB 12.3/MySQL 8.4. Source PHP constraints and local acceptance are not claims that every platform deployment combination is vendor supported. Older Magento API lines and Adobe Commerce-only features are not claimed tested.
 
@@ -74,3 +74,5 @@ Disabling/removing the module does not run a financial-data deletion hook. No de
 See [docs/VERIFICATION.md](docs/VERIFICATION.md) for actual test commands, native fixture scope and limits; [English guide](docs/guide.en.md), [Türkçe rehber](docs/guide.tr.md), [security reporting](SECURITY.md), [changelog](CHANGELOG.md), [MIT](LICENSE). No live charge or marketplace approval is claimed.
 
 The native financial fixture applies checksum-pinned official July–October 2026 CE patches and the separate VULN-39341 fix. This does not clear the platform’s third-party Composer findings; see [upstream audit scope](docs/UPSTREAM-SECURITY.md). The canonical browser POST callback only uses a bounded field-ignoring same-origin 303 adapter; the subsequent GET restores native session/ownership checks.
+
+**Historical public merchant ZIP 0.1.3:** [`lunixi-magento2-0.1.3.zip`](https://github.com/Lunixi-Payment/lunixi-magento2/releases/download/v0.1.3/lunixi-magento2-0.1.3.zip) · [SHA256SUMS](https://github.com/Lunixi-Payment/lunixi-magento2/releases/download/v0.1.3/SHA256SUMS) · [Release v0.1.3](https://github.com/Lunixi-Payment/lunixi-magento2/releases/tag/v0.1.3). The CI-built installation package was downloaded and verified on 2026-10-31. Use this asset rather than GitHub's automatic source archive. Historical SHA-256: `fff93235ddf631c1b7da2e20b66b1f1bf69bdf0e0f73a1bfdbd0aa1318ac6ad9`.

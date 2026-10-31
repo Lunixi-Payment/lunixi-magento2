@@ -1,14 +1,18 @@
 # Magento 2 / Adobe Commerce
 
+**Doğrulanmış güncel mağaza ZIP’i 0.1.4:** [`lunixi-magento2-0.1.4.zip`](https://github.com/Lunixi-Payment/lunixi-magento2/releases/download/v0.1.4/lunixi-magento2-0.1.4.zip) · [SHA256SUMS](https://github.com/Lunixi-Payment/lunixi-magento2/releases/download/v0.1.4/SHA256SUMS) · [Yayın v0.1.4](https://github.com/Lunixi-Payment/lunixi-magento2/releases/tag/v0.1.4) · [Başarılı yayın CI koşumu](https://github.com/Lunixi-Payment/lunixi-magento2/actions/runs/41242098729).
+
+Public ZIP SHA-256: `325625fdaf9f4680ebde1227354ab5c6116dd16d9c123ad7193a41bd96fcdcf2`. İndirilen arşivin checksum, GitHub asset digest ve ZIP CRC kontrolleri 1 Kasım 2026 tarihinde doğrulandı. Otomatik GitHub kaynak arşivi yerine bu kurulum paketini kullanın.
+
 Mevcut Lunixi formu varsayılan olarak **mağazanın kendi sitesinde açılır**. Yönlendirmeli ödeme isteğe bağlıdır ve yalnız backend’in döndürdüğü doğrulanmış `paymentPageUrl` kullanılır. Adresin opak token’ı gömülü token’dan farklı olabilir; modül adresi token’dan üretmez. Eksik/eski adres gömülü ödemeyi engellemez; yönlendirmeli ödeme yeni intent veya anahtar açmadan inceleme/uzlaştırmada kalır. Mevcut denemelerin kayıtlı modu, gövdesi, profili ve anahtarı korunur. Yöntemler ve çoklu kart mevcut Lunixi formu/panelinden yönetilir.
 
-Hazırlanan Lunixi Payments 0.1.4 adayı, Magento Payment Adapter yapısını ortak PHP SDK 0.29.6 ile birleştirir. Kaynak: [lunixi-magento2](https://github.com/Lunixi-Payment/lunixi-magento2). Hedef API serisi **2.4.9**; gerçek platform testleri Magento Open Source üzerinde çalıştırıldı. Lisanslı Adobe Commerce kurulumu test edilmedi.
+Lunixi Payments 0.1.4, Magento Payment Adapter yapısını ortak PHP SDK 0.29.6 ile birleştirir. Kaynak: [lunixi-magento2](https://github.com/Lunixi-Payment/lunixi-magento2). Hedef API serisi **2.4.9**; gerçek platform testleri Magento Open Source üzerinde çalıştırıldı. Lisanslı Adobe Commerce kurulumu test edilmedi.
 
-Aday yayımlanana kadar aşağıdaki 0.1.3 ZIP doğrulanmış mevcut yayındır. Aday kabulü, 223 modüllü tam Open Source 2.4.9 mağazasında PHP 8.5.12, MariaDB 12.3 ve OpenSearch 3.9.0 ile yerel kontrollü TLS ödeme servisine karşı yapıldı. Gerçek banka tahsilatı veya lisanslı Adobe Commerce kabulü yapıldığı iddia edilmez.
+Doğrulanmış güncel ZIP 0.1.4 yukarıdadır. Native kabul, 223 modüllü tam Open Source 2.4.9 mağazasında PHP 8.5.12, MariaDB 12.3 ve OpenSearch 3.9.0 ile yerel kontrollü TLS ödeme servisine karşı yapıldı. Gerçek banka tahsilatı veya lisanslı Adobe Commerce kabulü yapıldığı iddia edilmez.
 
 ## Kurulum
 
-Hazır `lunixi-magento2-0.1.3.zip` dosyasının SHA-256 değerini doğrulayıp mağaza köküne çıkarın. Modül `app/code/Lunixi/Payments` altında bulunur. ZIP, ad alanı ayrılmış SDK içerir; modül için Composer bağımlılığı indirmeniz gerekmez.
+Hazır `lunixi-magento2-0.1.4.zip` dosyasının SHA-256 değerini doğrulayıp mağaza köküne çıkarın. Modül `app/code/Lunixi/Payments` altında bulunur. ZIP, ad alanı ayrılmış SDK içerir; modül için Composer bağımlılığı indirmeniz gerekmez.
 
 ```bash
 php bin/magento module:enable Lunixi_Payments
@@ -20,7 +24,7 @@ php bin/magento cache:clean
 
 Kaynak koddan paketlemek için `composer install --working-dir=tools --no-plugins --no-scripts`, ardından `php tools/build.php` çalıştırılır. Bağımlılık tam olarak `lunixi/php-sdk:0.29.6` sürümüdür. Güvenilir yerel SDK klasörü `php tools/build.php /mutlak/yol/lunixi-php` ile verilebilir. Kaynak çalışma kopyasını etkinleştirmeden önce paketleyin. GitHub kaynağı, modülün Composer kayıt sisteminde veya Adobe Marketplace'te yayımlandığı anlamına gelmez.
 
-Canlı ortamda Adobe'nin güncel PHP, veritabanı, servis gereksinimlerini ve güvenlik yamalarını uygulayın. Yerel test ortamı PHP 8.4.1, MariaDB 11.8.6/InnoDB, resmi Magento Open Source 2.4.9 ve 63 yerleşik modülden oluştu; bunlara Lunixi eklendi. Finansal test kurulumunda arama modülleri kapalıydı. Bu sonuç, gerçek servis/veritabanı kabulüdür; mağazanın tarayıcı akışı, arama ve lisanslı Commerce özellikleri ayrıca test edilmelidir. Adobe'nin güncel şirket içi 2.4.9 tablosunda PHP 8.5 ve MariaDB 12.3/MySQL 8.4 yer alır. → [Sistem gereksinimleri](https://experienceleague.adobe.com/en/docs/commerce-operations/installation-guide/system-requirements)
+Adobe’nin desteklediği kurulum tablosunu ve güvenlik yamalarını uygulayın. Güncel native kabul, 223 modüllü tam Magento Open Source 2.4.9 mağazasında PHP 8.5.12, MariaDB 12.3.3/InnoDB ve OpenSearch 3.9.0 ile çalıştı: 23 test / 117 assertion yanında gerçek HTTPS misafir sepet/sipariş, embedded/hosted, dönüş, sahiplik ve imzalı tahsilat yolları yerel TLS ödeme bileşeniyle geçti. Önceki 63 modüllü PHP8.4 kurulumu tarihsel kayıttır. Tam tarayıcı/CDN/kart/3DS veya lisanslı Commerce kabulü iddia edilmez. [Doğrulama](VERIFICATION.md) ve [üst platform bağımlılık bulguları](UPSTREAM-SECURITY.md).
 
 ## Erişim bilgileri
 

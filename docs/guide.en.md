@@ -1,12 +1,16 @@
 # Magento 2 / Adobe Commerce
 
+**Current verified merchant ZIP 0.1.4:** [`lunixi-magento2-0.1.4.zip`](https://github.com/Lunixi-Payment/lunixi-magento2/releases/download/v0.1.4/lunixi-magento2-0.1.4.zip) · [SHA256SUMS](https://github.com/Lunixi-Payment/lunixi-magento2/releases/download/v0.1.4/SHA256SUMS) · [Release v0.1.4](https://github.com/Lunixi-Payment/lunixi-magento2/releases/tag/v0.1.4) · [Passing release CI](https://github.com/Lunixi-Payment/lunixi-magento2/actions/runs/41242098729).
+
+Public ZIP SHA-256: `325625fdaf9f4680ebde1227354ab5c6116dd16d9c123ad7193a41bd96fcdcf2`. The downloaded archive passed public checksum, GitHub asset digest and ZIP CRC checks on 1 November 2026. Use this installation package rather than GitHub’s automatic source archive.
+
 The existing Lunixi form opens **on the merchant website by default**. Hosted checkout remains optional and uses only the validated backend `paymentPageUrl`. Its opaque token can differ from the embedded token; the module never builds this URL from that token. Missing or legacy URLs keep embedded checkout available; hosted checkout stays on hold/reconciliation without a new intent or key. Existing attempts keep their saved mode, request body, profile and key. The official form/panel controls available methods and multi-card options.
 
-Prepared candidate Lunixi Payments 0.1.4 integrates the Magento Payment Adapter with the shared PHP SDK 0.29.6. Source: [lunixi-magento2](https://github.com/Lunixi-Payment/lunixi-magento2). The target API line is **2.4.9**; native acceptance was executed on Magento Open Source, not a licensed Adobe Commerce installation.
+Lunixi Payments 0.1.4 integrates the Magento Payment Adapter with the shared PHP SDK 0.29.6. Source: [lunixi-magento2](https://github.com/Lunixi-Payment/lunixi-magento2). The target API line is **2.4.9**; native acceptance was executed on Magento Open Source, not a licensed Adobe Commerce installation.
 
 ## Install
 
-Use the completed `lunixi-magento2-0.1.3.zip` and verify its SHA-256. Extract it at the store root; the module is under `app/code/Lunixi/Payments`. The ZIP bundles a namespace-isolated SDK and needs no module Composer restore.
+Use the completed `lunixi-magento2-0.1.4.zip` and verify its SHA-256. Extract it at the store root; the module is under `app/code/Lunixi/Payments`. The ZIP bundles a namespace-isolated SDK and needs no module Composer restore.
 
 ```bash
 php bin/magento module:enable Lunixi_Payments
@@ -18,7 +22,7 @@ php bin/magento cache:clean
 
 Maintainers can build from source with `composer install --working-dir=tools --no-plugins --no-scripts` followed by `php tools/build.php`. The build input is exactly `lunixi/php-sdk:0.29.6`; `php tools/build.php /absolute/path/to/lunixi-php` accepts a trusted checkout. Source checkouts must be built before enabling the module. GitHub source availability does not imply a module Composer-registry release or Adobe Marketplace listing.
 
-Use Adobe's current supported PHP/database/service matrix and security patches for production. The exact local verification environment was PHP 8.4.1, MariaDB 11.8.6/InnoDB and official Magento Open Source 2.4.9 with 63 native modules, plus Lunixi. Search modules were omitted from that financial fixture. This is native service/database acceptance; full storefront browser testing, search and licensed Commerce features still need merchant staging validation. Adobe's current on-premises 2.4.9 matrix lists PHP 8.5 and MariaDB 12.3/MySQL 8.4. See [system requirements](https://experienceleague.adobe.com/en/docs/commerce-operations/installation-guide/system-requirements).
+Follow Adobe’s supported deployment matrix and security patches. Current native acceptance ran the full 223-module Magento Open Source 2.4.9 store on PHP 8.5.12, MariaDB 12.3.3/InnoDB and OpenSearch 3.9.0: 23 tests / 117 assertions plus actual HTTPS guest quote/order, embedded/hosted, callback, ownership and signed settlement routes using a local TLS provider stand-in. The earlier 63-module PHP8.4 fixture remains historical. Full browser/CDN/card/3DS and licensed Commerce acceptance are not claimed. See [verification](VERIFICATION.md) and [upstream dependency findings](UPSTREAM-SECURITY.md).
 
 ## Configure credentials
 
