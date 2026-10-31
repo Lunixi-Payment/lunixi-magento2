@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.2 — 2026-10-31
+
+- Use root-confined relative native-source aliases for Ubuntu 24 GNU patch 2.7.6; normalize known absolute aliases from a failed fixture bootstrap.
+- Keep all five checksum-pinned official security patches unchanged with strict zero-fuzz application; add alias confinement/idempotency regressions and retain both ends of patch failure diagnostics.
+- Keep shared PHP SDK 0.29.3 and native financial behavior unchanged.
+
 ## 0.1.1 — 2026-10-31
 
 - Read the authoritative bundled `VERSION` file when Composer exports omit `version`; validate the Composer value only when present.

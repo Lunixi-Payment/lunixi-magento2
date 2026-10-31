@@ -1,10 +1,10 @@
 # Magento 2 / Adobe Commerce
 
-Lunixi Payments 0.1.1, Magento Payment Adapter yapısını ortak PHP SDK 0.29.3 ile birleştirir. Kaynak: [lunixi-magento2](https://github.com/Lunixi-Payment/lunixi-magento2). Hedef API serisi **2.4.9**; gerçek platform testleri Magento Open Source üzerinde çalıştırıldı. Lisanslı Adobe Commerce kurulumu test edilmedi.
+Lunixi Payments 0.1.2, Magento Payment Adapter yapısını ortak PHP SDK 0.29.3 ile birleştirir. Kaynak: [lunixi-magento2](https://github.com/Lunixi-Payment/lunixi-magento2). Hedef API serisi **2.4.9**; gerçek platform testleri Magento Open Source üzerinde çalıştırıldı. Lisanslı Adobe Commerce kurulumu test edilmedi.
 
 ## Kurulum
 
-Hazır `lunixi-magento2-0.1.1.zip` dosyasının SHA-256 değerini doğrulayıp mağaza köküne çıkarın. Modül `app/code/Lunixi/Payments` altında bulunur. ZIP, ad alanı ayrılmış SDK içerir; modül için Composer bağımlılığı indirmeniz gerekmez.
+Hazır `lunixi-magento2-0.1.2.zip` dosyasının SHA-256 değerini doğrulayıp mağaza köküne çıkarın. Modül `app/code/Lunixi/Payments` altında bulunur. ZIP, ad alanı ayrılmış SDK içerir; modül için Composer bağımlılığı indirmeniz gerekmez.
 
 ```bash
 php bin/magento module:enable Lunixi_Payments
@@ -75,7 +75,7 @@ Magento cron'u çalıştırın. Ayrı dönen bütçeler, bekleyen ödemeleri ve 
 
 ## Saklama ve kapsam
 
-İade/itiraz saklama süresince `lunixi_payment_*` tablolarını, geçmiş profilleri, Magento crypt anahtarını ve ayrı sunucu anahtarını koruyun. Finansal kayıtları silen kaldırma kancası veya yıkıcı şema whitelist dosyası sağlanmaz. 0.1.1 sürümünde abonelik, kart saklama/vault, Hyvä/headless ödeme arayüzleri, otomatik RMA/stok iadesi ve yalnızca Adobe Commerce'e ait özellikler uygulanmadı.
+İade/itiraz saklama süresince `lunixi_payment_*` tablolarını, geçmiş profilleri, Magento crypt anahtarını ve ayrı sunucu anahtarını koruyun. Finansal kayıtları silen kaldırma kancası veya yıkıcı şema whitelist dosyası sağlanmaz. 0.1.2 sürümünde abonelik, kart saklama/vault, Hyvä/headless ödeme arayüzleri, otomatik RMA/stok iadesi ve yalnızca Adobe Commerce'e ait özellikler uygulanmadı.
 
 Depodaki doğrulama kaydı, gerçekten çalıştırılan testleri ve sınırlarını listeler. Canlı tahsilat, marketplace onayı veya eksiksiz tarayıcı mağaza kabulü iddia edilmez.
 

@@ -1,4 +1,4 @@
-# Verification record — 0.1.1
+# Verification record — 0.1.2
 
 Verified on 2026-10-31, macOS arm64, **PHP 8.4.1**, **MariaDB 11.8.6/InnoDB**, official Magento Open Source **2.4.9** and real native DI/services/database. No live gateway charge or external email was sent.
 
@@ -9,6 +9,7 @@ Verified on 2026-10-31, macOS arm64, **PHP 8.4.1**, **MariaDB 11.8.6/InnoDB**, o
 - Installed through actual `setup:install`, 63 native modules plus Lunixi, with source-provided Composer lock/dependencies. Search modules/daemon are omitted from this financial fixture.
 - Shared SDK **v0.29.3**, fetched successfully from the published Composer package; source reference `a725c9012020cb7b399d237984eaade7e5114157`. Scoped SDK signing and body digests are checked using independent sodium verification.
 - Original official CE security patches applied sequentially, with zero failed hunks: July → August → separate VULN-39341_249 → September → October. No patch hunk rewrites or blanket vendor updates.
+- Fresh **Linux aarch64 / Ubuntu 24 glibc 2.39**, official **GNU patch 2.7.6-7build3**: all five original patches passed strict `--fuzz=0` dry-run and application. All **75** patched file hashes matched the independently verified official fixture. Absolute source aliases reproduced the exact July line 1555/1572 failure; the root-confined relative alias helper fixes it without relaxing patch options.
 
 | Official archive | SHA-256 |
 | --- | --- |
@@ -23,6 +24,7 @@ Verified on 2026-10-31, macOS arm64, **PHP 8.4.1**, **MariaDB 11.8.6/InnoDB**, o
 ## Executed checks
 
 - Native `module:enable`, declarative `setup:upgrade`, clean `setup:install`, and full **9/9 native DI compile stages** passed on the standalone module, including generated interceptors. Developer modules are intentionally non-final where Magento interception requires inheritance.
+- Native source alias helper: **7** tests passed for relative creation, idempotency, normalization of known absolute aliases, foreign/escaping path rejection and preservation of a real installed vendor directory.
 - Public Composer export: removed the optional module Composer `version` field, installed locked tools in a clean source copy, then built the standalone ZIP using the authoritative bundled `VERSION`. Six actual-builder metadata cases (stripped, matching, conflicting, null, missing and unsafe) passed.
 - Native PHP suite: **21 tests / 106 assertions** passed against the installed standalone artifact on the October-patched native fixture.
 - Browser loader: **2 Node tests** passed, covering structured configuration, AMD/global exports, CDN and asynchronous mount failure without exposing error contents.
@@ -37,6 +39,7 @@ Use only a disposable database named exactly `lunixi_magento`; its account must 
 
 ```bash
 python3 tools/test-release-metadata.py
+python3 tools/test-native-security-aliases.py
 composer install --working-dir=tools --no-interaction --no-plugins --no-scripts
 php tools/build.php
 export LUNIXI_NATIVE_TEST_DESTRUCTIVE=1

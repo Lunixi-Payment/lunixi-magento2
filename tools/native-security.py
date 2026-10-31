@@ -23,6 +23,26 @@ def digest(path):
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
+def ensure_source_alias(root, target, source):
+    """Keep Composer-path aliases inside TEST source and relative for GNU patch 2.7.6."""
+    root = root.resolve()
+    source = source.resolve()
+    target = target.parent.resolve() / target.name
+    if not source.is_relative_to(root) or not target.parent.resolve().is_relative_to(root):
+        raise RuntimeError('Native source alias would escape the TEST root')
+    if target.is_symlink():
+        if target.resolve() != source:
+            raise RuntimeError('Unexpected existing native source alias: ' + target.name)
+        # Ubuntu 24 GNU patch 2.7.6 rejects absolute aliases even when the target
+        # exists inside this root. Repair only the known alias to this exact source.
+        if os.path.isabs(os.readlink(target)):
+            target.unlink()
+            target.symlink_to(os.path.relpath(source, target.parent), target_is_directory=True)
+    elif not target.exists():
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.symlink_to(os.path.relpath(source, target.parent), target_is_directory=True)
+
+
 def main():
     if os.environ.get('LUNIXI_NATIVE_TEST_DESTRUCTIVE') != '1':
         raise RuntimeError('This tool is only for the explicitly enabled disposable native TEST fixture')
@@ -48,9 +68,7 @@ def main():
             if not re.fullmatch(r'magento/[a-z0-9-]+', package):
                 continue
             target = root / 'vendor' / package
-            if not target.exists():
-                target.parent.mkdir(parents=True, exist_ok=True)
-                target.symlink_to(manifest.parent)
+            ensure_source_alias(root, target, manifest.parent)
     cache = Path(__file__).resolve().parents[1] / '.cache/native-security'
     cache.mkdir(parents=True, exist_ok=True)
     touched = set()
@@ -58,7 +76,7 @@ def main():
         archive = cache / name
         if not archive.exists():
             request = urllib.request.Request('https://repo.magento.com/patch/' + name,
-                                             headers={'User-Agent': 'Lunixi-native-security-fixture/0.1.1'})
+                                             headers={'User-Agent': 'Lunixi-native-security-fixture/0.1.2'})
             with urllib.request.urlopen(request, timeout=60) as response:
                 archive.write_bytes(response.read())
         if digest(archive) != expected:
@@ -80,7 +98,8 @@ def main():
                 command.append('--dry-run')
             result = subprocess.run(command, input=patch, cwd=root, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
             if result.returncode:
-                print(result.stdout.decode()[-6000:])
+                output = result.stdout.decode()
+                print(output if len(output) <= 6000 else output[:3000] + '\n[patch output truncated]\n' + output[-3000:])
                 raise RuntimeError('Official patch does not apply cleanly: ' + files[0])
         print('Applied original official security patch: ' + files[0])
     hashes = {name: digest(root / name) for name in sorted(touched)}

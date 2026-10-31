@@ -2,7 +2,7 @@
 
 # Lunixi Payments for Magento 2
 
-Native payment module **0.1.1**, targeting Magento Open Source / Adobe Commerce **2.4.9 payment APIs**. It uses the modern Magento Payment Adapter and the shared [Lunixi PHP SDK 0.29.3](https://github.com/Lunixi-Payment/lunixi-php). Choose the existing embedded Lunixi form or redirect to `https://pay.lunixi.com/payment/<token>`.
+Native payment module **0.1.2**, targeting Magento Open Source / Adobe Commerce **2.4.9 payment APIs**. It uses the modern Magento Payment Adapter and the shared [Lunixi PHP SDK 0.29.3](https://github.com/Lunixi-Payment/lunixi-php). Choose the existing embedded Lunixi form or redirect to `https://pay.lunixi.com/payment/<token>`.
 
 Available methods, installments, insurance and split eligibility are managed in the **Lunixi panel**. The module does not duplicate method filters or collect card data. Product-specific capabilities still depend on merchant/form activation and the required product context.
 
@@ -23,7 +23,7 @@ composer install --working-dir=tools --no-interaction --no-plugins --no-scripts
 php tools/build.php
 ```
 
-The builder fetches exactly `lunixi/php-sdk:0.29.3`, scopes it into `Lunixi\Payments\Vendor` with pinned build dependencies and includes its MIT license. A trusted source checkout can be supplied as `php tools/build.php /absolute/path/to/lunixi-php`. Output: `dist/lunixi-magento2-0.1.1.zip` and SHA-256 file. Source checkouts must be built before enabling the module; the generated SDK is deliberately excluded from source control. The source and ZIP include the authoritative `VERSION` file. Public Composer exports may omit their optional `version` field because Packagist reads Git tags; the builder supports both forms and rejects a conflicting field.
+The builder fetches exactly `lunixi/php-sdk:0.29.3`, scopes it into `Lunixi\Payments\Vendor` with pinned build dependencies and includes its MIT license. A trusted source checkout can be supplied as `php tools/build.php /absolute/path/to/lunixi-php`. Output: `dist/lunixi-magento2-0.1.2.zip` and SHA-256 file. Source checkouts must be built before enabling the module; the generated SDK is deliberately excluded from source control. The source and ZIP include the authoritative `VERSION` file. Public Composer exports may omit their optional `version` field because Packagist reads Git tags; the builder supports both forms and rejects a conflicting field.
 
 On a backed-up staging Magento installation, extract the ZIP at the store root. It contains `app/code/Lunixi/Payments/`:
 
@@ -61,7 +61,7 @@ Native fraud/manual holds and canceled orders are preserved even when funded. Re
 
 ## Retention and verification
 
-Disabling/removing the module does not run a financial-data deletion hook. No destructive declarative whitelist or uninstall routine is provided. Preserve `lunixi_payment_*` tables, historical encrypted profiles, Magento crypt key and the separate server key; native destructive database cleanup remains an explicit operator action. Recurring payments, vault/card storage, Hyvä/headless checkout renderers, RMA automation and Adobe Commerce-only modules are not implemented in 0.1.1.
+Disabling/removing the module does not run a financial-data deletion hook. No destructive declarative whitelist or uninstall routine is provided. Preserve `lunixi_payment_*` tables, historical encrypted profiles, Magento crypt key and the separate server key; native destructive database cleanup remains an explicit operator action. Recurring payments, vault/card storage, Hyvä/headless checkout renderers, RMA automation and Adobe Commerce-only modules are not implemented in 0.1.2.
 
 See [docs/VERIFICATION.md](docs/VERIFICATION.md) for actual test commands, native fixture scope and limits; [English guide](docs/guide.en.md), [Türkçe rehber](docs/guide.tr.md), [security reporting](SECURITY.md), [changelog](CHANGELOG.md), [MIT](LICENSE). No live charge or marketplace approval is claimed.
 
