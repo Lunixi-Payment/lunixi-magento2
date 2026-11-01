@@ -28,7 +28,7 @@ final class NativeIntegrationTest extends TestCase
         $first=$fixture->runtime->operationId($id);$fixture->runtime->mutate($id,$first,'refund','1000');
         self::assertSame('10.0000',(string)$fixture->fresh()->getData('base_total_refunded'));
         $final=$fixture->runtime->operationId($id);$fixture->runtime->mutate($id,$final,'refund','9050');
-        self::assertSame(10350,$fixture->http->refunded);
+        self::assertSame('10350',$fixture->http->refunded);
         self::assertSame('100.5000',(string)$fixture->fresh()->getData('base_total_refunded'));
         self::assertSame(2,$fixture->fresh()->getCreditmemosCollection()->count());
         $fixture->runtime->mutate($id,$final,'refund','9050');self::assertCount(3,$fixture->http->mutationKeys);

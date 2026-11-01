@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.0.2 — 2026-11-01
+
+- Keep the real native refund integration assertion strict against the canonical string-money response.
+- Require the tested source commit to match the release tag before publishing the immutable ZIP.
+
 ## 1.0.1 — 2026-11-01
 
 - Validate native decimal conversion with canonical strings, including values above the JavaScript safe integer boundary and numeric input rejection.
