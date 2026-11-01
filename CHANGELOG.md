@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.3 — 2026-11-01
+
+- Format the exact-money native order/runtime expressions to satisfy strict release lint; all non-whitespace PHP tokens and financial behavior are unchanged.
+
 ## 1.0.2 — 2026-11-01
 
 - Keep the real native refund integration assertion strict against the canonical string-money response.

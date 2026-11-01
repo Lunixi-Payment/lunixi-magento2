@@ -120,7 +120,10 @@ class NativeOrders
                 $invoice->save();
                 // Native total collectors may use floats. Verify their persisted DECIMAL
                 // result within this transaction before allowing any native effect to commit.
-                if ($this->persistedMinor('sales_invoice', (int) $invoice->getId(), $snapshot->currency()) !== $snapshot->amount()) {
+                if (
+                    $this->persistedMinor('sales_invoice', (int) $invoice->getId(), $snapshot->currency()) !==
+                    $snapshot->amount()
+                ) {
                     throw new \RuntimeException('Native invoice amount differs.');
                 }
                 $order->setData('is_in_process', true);
@@ -181,7 +184,10 @@ class NativeOrders
                 $creditmemo->setEmailSent(0);
                 // GET already proved the effect; this is native bookkeeping only.
                 $this->refunds->refund($creditmemo, true);
-                if ($this->persistedMinor('sales_creditmemo', (int) $creditmemo->getId(), $snapshot->currency()) !== $delta) {
+                if (
+                    $this->persistedMinor('sales_creditmemo', (int) $creditmemo->getId(), $snapshot->currency()) !==
+                    $delta
+                ) {
                     throw new \RuntimeException('Native credit memo amount differs.');
                 }
                 $this->queue('creditmemo', (int) $creditmemo->getId(), $id);
@@ -203,7 +209,11 @@ class NativeOrders
     }
     private function persistedMinor(string $table, int $entityId, string $currency): string
     {
-        if (!in_array($table, ['sales_invoice', 'sales_creditmemo'], true) || $entityId < 1 || $this->ledger->db()->getTransactionLevel() < 1) {
+        if (
+            !in_array($table, ['sales_invoice', 'sales_creditmemo'], true) ||
+            $entityId < 1 ||
+            $this->ledger->db()->getTransactionLevel() < 1
+        ) {
             throw new \RuntimeException('A persisted native money record in the ledger transaction is required.');
         }
         $decimal = $this->ledger->db()->fetchOne(

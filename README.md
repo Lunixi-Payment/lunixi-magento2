@@ -1,14 +1,14 @@
 <p align="center"><picture><source media="(prefers-color-scheme: dark)" srcset="view/frontend/web/images/lunixi-dark.svg"><img src="view/frontend/web/images/lunixi.svg" alt="Lunixi" width="240"></picture></p>
 
-> Version 1.0.2 uses all money to canonical minor-unit strings. Read [the migration guide](MIGRATION-1.0.md).
+> Version 1.0.3 uses all money to canonical minor-unit strings. Read [the migration guide](MIGRATION-1.0.md).
 
 # Lunixi Payments for Magento 2
 
-After the 1.0.2 merchant ZIP is available in [GitHub releases](https://github.com/Lunixi-Payment/lunixi-magento2/releases), download it and verify its matching `SHA256SUMS`. This package requires PHP SDK 1.0.1. Follow the [money-string migration](MIGRATION-1.0.md); 0.x ZIPs use the previous numeric-money contract.
+After the 1.0.3 merchant ZIP is available in [GitHub releases](https://github.com/Lunixi-Payment/lunixi-magento2/releases), download it and verify its matching `SHA256SUMS`. This package requires PHP SDK 1.0.1. Follow the [money-string migration](MIGRATION-1.0.md); 0.x ZIPs use the previous numeric-money contract.
 
 The existing Lunixi form opens **on the merchant website by default**. Hosted checkout remains optional and uses only the validated backend `paymentPageUrl`. Its opaque token can differ from the embedded token; the module never builds this URL from that token. Missing or legacy URLs keep embedded checkout available; hosted checkout stays on hold/reconciliation without a new intent or key. Existing attempts keep their saved mode, request body, profile and key. The official form/panel controls available methods and multi-card options.
 
-Payment module **1.0.2**, targeting Magento Open Source / Adobe Commerce **2.4.9 payment APIs**. It uses the modern Magento Payment Adapter and the shared [Lunixi PHP SDK 1.0.1](https://github.com/Lunixi-Payment/lunixi-php). The existing Lunixi form is embedded by default; optional redirect uses the backend `paymentPageUrl`.
+Payment module **1.0.3**, targeting Magento Open Source / Adobe Commerce **2.4.9 payment APIs**. It uses the modern Magento Payment Adapter and the shared [Lunixi PHP SDK 1.0.1](https://github.com/Lunixi-Payment/lunixi-php). The existing Lunixi form is embedded by default; optional redirect uses the backend `paymentPageUrl`.
 
 Available methods, installments, insurance and split eligibility are managed in the **Lunixi panel**. The module does not duplicate method filters or collect card data. Product-specific capabilities still depend on merchant/form activation and the required product context.
 
@@ -31,7 +31,7 @@ composer install --working-dir=tools --no-interaction --no-plugins --no-scripts
 php tools/build.php
 ```
 
-The builder fetches exactly `lunixi/php-sdk:1.0.1`, scopes it into `Lunixi\Payments\Vendor` with pinned build dependencies and includes its MIT license. A trusted source checkout can be supplied as `php tools/build.php /absolute/path/to/lunixi-php`. Output: `dist/lunixi-magento2-1.0.2.zip` and SHA-256 file. Source checkouts must be built before enabling the module; the generated SDK is deliberately excluded from source control. The source and ZIP include the authoritative `VERSION` file. Public Composer exports may omit their optional `version` field because Packagist reads Git tags; the builder supports both forms and rejects a conflicting field.
+The builder fetches exactly `lunixi/php-sdk:1.0.1`, scopes it into `Lunixi\Payments\Vendor` with pinned build dependencies and includes its MIT license. A trusted source checkout can be supplied as `php tools/build.php /absolute/path/to/lunixi-php`. Output: `dist/lunixi-magento2-1.0.3.zip` and SHA-256 file. Source checkouts must be built before enabling the module; the generated SDK is deliberately excluded from source control. The source and ZIP include the authoritative `VERSION` file. Public Composer exports may omit their optional `version` field because Packagist reads Git tags; the builder supports both forms and rejects a conflicting field.
 
 On a backed-up staging Magento installation, extract the ZIP at the store root. It contains `app/code/Lunixi/Payments/`:
 

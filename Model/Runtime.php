@@ -344,13 +344,22 @@ class Runtime
                 if (
                     $amount === null ||
                     $amount === '0' ||
-                    Money::compare($amount, Money::subtract($record['snapshot']['amount'], Money::minimum($record['snapshot']['amount'], $record['refundedAmount'] ?? '0'))) > 0
+                    Money::compare(
+                        $amount,
+                        Money::subtract(
+                            $record['snapshot']['amount'],
+                            Money::minimum($record['snapshot']['amount'], $record['refundedAmount'] ?? '0')
+                        )
+                    ) > 0
                 ) {
                     throw new \RuntimeException('Invalid native refund amount.');
                 }
                 if (
                     $amount ===
-                    Money::subtract($record['snapshot']['amount'], Money::minimum($record['snapshot']['amount'], $record['refundedAmount'] ?? '0'))
+                    Money::subtract(
+                        $record['snapshot']['amount'],
+                        Money::minimum($record['snapshot']['amount'], $record['refundedAmount'] ?? '0')
+                    )
                 ) {
                     $effective = Money::subtract($record['chargedAmount'], $record['refundedAmount']);
                 }
