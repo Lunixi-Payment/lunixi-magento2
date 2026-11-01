@@ -26,9 +26,15 @@ final class NativeContractTest extends TestCase
         $order->setData(['entity_id'=>123, 'store_id'=>2, 'base_grand_total'=>'100.5000', 'base_currency_code'=>'TRY', 'grand_total'=>'3.0000', 'order_currency_code'=>'EUR']);
         $snapshot = NativeOrders::snapshot($order,'merchant');
         self::assertSame('10050',$snapshot->amount()); self::assertSame('magento:2:123',$snapshot->orderId());
-        self::assertSame('1.234',NativeOrders::decimal(1234,'KWD'));
+        self::assertSame('1.234',NativeOrders::decimal('1234','KWD'));
+        self::assertSame('9007199254740.993',NativeOrders::decimal('9007199254740993','KWD'));
         $order->setData('base_grand_total','100.51');
         $this->expectException(\RuntimeException::class); NativeOrders::assertSnapshot($order,$snapshot);
+    }
+    public function testNativeDecimalRejectsNumericMinorUnits(): void
+    {
+        $this->expectException(\TypeError::class);
+        NativeOrders::decimal(1234,'KWD');
     }
     public function testAllProductionClassesLoadAgainstRealNativeSignatures(): void
     {

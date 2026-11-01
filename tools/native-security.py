@@ -1,12 +1,16 @@
 #!/usr/bin/env python3
 """Apply checksum-pinned official CE security patches to the disposable native source fixture."""
 import hashlib
+from datetime import datetime, timezone
+from email.utils import parsedate_to_datetime
 import json
 import os
 from pathlib import Path
 import re
 import subprocess
 import sys
+import time
+import urllib.error
 import urllib.request
 import zipfile
 
@@ -17,6 +21,42 @@ PATCHES = [
     ('2-4-9-sep-2026.zip', '9fe17a9681d94deaaeb2ca9245e1e1bcd9fad9b3478fbcaaa8ab1a94ee4cd686', '-CE.patch'),
     ('2-4-9-oct-2026.zip', '1d995f5998a65dc46c76c31bb4cff799ebaf26121ca933ec18a708393b2f1d30', '-CE.patch'),
 ]
+
+DOWNLOAD_ATTEMPTS = 4
+MAX_RETRY_DELAY = 30
+
+
+def download_patch(name):
+    """Retry transient official-host failures without weakening archive checksums."""
+    request = urllib.request.Request('https://repo.magento.com/patch/' + name,
+                                     headers={'User-Agent': 'Lunixi-native-security-fixture/0.1.2'})
+    for attempt in range(DOWNLOAD_ATTEMPTS):
+        delay = 2 ** attempt
+        try:
+            with urllib.request.urlopen(request, timeout=60) as response:
+                return response.read()
+        except urllib.error.HTTPError as error:
+            if error.code not in {408, 429, 500, 502, 503, 504} or attempt == DOWNLOAD_ATTEMPTS - 1:
+                raise
+            retry_after = error.headers.get('Retry-After')
+            if retry_after:
+                try:
+                    if retry_after.isdigit():
+                        requested_delay = int(retry_after)
+                    else:
+                        retry_at = parsedate_to_datetime(retry_after)
+                        requested_delay = (retry_at - datetime.now(timezone.utc)).total_seconds()
+                except (ValueError, TypeError, OverflowError):
+                    requested_delay = 0
+                # Do not retry earlier than the server requested, or wait without a bound.
+                if requested_delay > MAX_RETRY_DELAY:
+                    raise
+                delay = max(delay, requested_delay)
+        except (urllib.error.URLError, TimeoutError):
+            if attempt == DOWNLOAD_ATTEMPTS - 1:
+                raise
+        time.sleep(delay)
+    raise RuntimeError('Official patch download exhausted its attempt bound')
 
 
 def digest(path):
@@ -75,10 +115,7 @@ def main():
     for name, expected, suffix in PATCHES:
         archive = cache / name
         if not archive.exists():
-            request = urllib.request.Request('https://repo.magento.com/patch/' + name,
-                                             headers={'User-Agent': 'Lunixi-native-security-fixture/0.1.2'})
-            with urllib.request.urlopen(request, timeout=60) as response:
-                archive.write_bytes(response.read())
+            archive.write_bytes(download_patch(name))
         if digest(archive) != expected:
             raise RuntimeError('Official security archive checksum mismatch: ' + name)
         with zipfile.ZipFile(archive) as source:

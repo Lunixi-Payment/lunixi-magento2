@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.0.1 — 2026-11-01
+
+- Validate native decimal conversion with canonical strings, including values above the JavaScript safe integer boundary and numeric input rejection.
+- Retry transient official security-patch download failures within a fixed attempt/delay budget; keep the pinned archive checksum and strict patch verification.
+
 ## 1.0.0 — 2026-11-01
 
 - Breaking: monetary minor units are canonical integer strings in requests, responses and platform settlement records. Numeric money is rejected; counts, rates and quantities retain their existing types.
