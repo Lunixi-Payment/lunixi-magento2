@@ -64,11 +64,11 @@ class NativeOrders
         return new OrderSnapshot(
             $merchant,
             self::key($order),
-            Money::minor((string) $order->getData('base_grand_total'), self::exponent($currency)),
+            Money::minor($order->getData('base_grand_total'), self::exponent($currency)),
             $currency,
         );
     }
-    public static function decimal(int $minor, string $currency): string
+    public static function decimal(string $minor, string $currency): string
     {
         return Money::decimal($minor, self::exponent($currency));
     }
@@ -113,19 +113,16 @@ class NativeOrders
                     throw new \RuntimeException('Native order cannot be invoiced.');
                 }
                 $invoice = $this->invoices->prepareInvoice($order);
-                if (
-                    Money::minor(
-                        (string) $invoice->getBaseGrandTotal(),
-                        self::exponent($snapshot->currency()),
-                    ) !== $snapshot->amount()
-                ) {
-                    throw new \RuntimeException('Native invoice amount differs.');
-                }
                 $invoice->setTransactionId($decision->paymentId);
                 $invoice->setData('requested_capture_case', Invoice::CAPTURE_OFFLINE);
                 $invoice->register();
                 $invoice->setEmailSent(0);
                 $invoice->save();
+                // Native total collectors may use floats. Verify their persisted DECIMAL
+                // result within this transaction before allowing any native effect to commit.
+                if ($this->persistedMinor('sales_invoice', (int) $invoice->getId(), $snapshot->currency()) !== $snapshot->amount()) {
+                    throw new \RuntimeException('Native invoice amount differs.');
+                }
                 $order->setData('is_in_process', true);
                 $order->addRelatedObject($invoice);
                 $this->queue('invoice', (int) $invoice->getId(), $id);
@@ -148,7 +145,7 @@ class NativeOrders
             }
             if (
                 Money::minor(
-                    (string) ($order->getData('base_total_paid') ?? '0'),
+                    ($order->getData('base_total_paid') ?? '0'),
                     self::exponent($snapshot->currency()),
                 ) !== $snapshot->amount()
             ) {
@@ -157,17 +154,17 @@ class NativeOrders
                 );
             }
             $nativeRefunded = Money::minor(
-                (string) ($order->getData('base_total_refunded') ?? '0'),
+                ($order->getData('base_total_refunded') ?? '0'),
                 self::exponent($snapshot->currency()),
             );
-            $target = min($snapshot->amount(), $decision->refundedAmount);
-            if ($nativeRefunded > $target) {
+            $target = Money::minimum($snapshot->amount(), $decision->refundedAmount);
+            if (Money::compare($nativeRefunded, $target) > 0) {
                 throw new \RuntimeException(
                     'Native refund exceeds authenticated gateway evidence.',
                 );
             }
-            if ($target > $nativeRefunded) {
-                $delta = $target - $nativeRefunded;
+            if (Money::compare($target, $nativeRefunded) > 0) {
+                $delta = Money::subtract($target, $nativeRefunded);
                 // Monetary adjustments do not fabricate returned item quantities or restock inventory.
                 $qtys = [];
                 foreach ($order->getAllItems() as $item) {
@@ -178,20 +175,15 @@ class NativeOrders
                     'shipping_amount' => '0',
                     'adjustment_positive' => self::decimal($delta, $snapshot->currency()),
                 ]);
-                if (
-                    Money::minor(
-                        (string) $creditmemo->getBaseGrandTotal(),
-                        self::exponent($snapshot->currency()),
-                    ) !== $delta
-                ) {
-                    throw new \RuntimeException('Native credit memo amount differs.');
-                }
                 $creditmemo->setTransactionId(
                     $decision->paymentId . '-refund-' . $decision->refundedAmount,
                 );
                 $creditmemo->setEmailSent(0);
                 // GET already proved the effect; this is native bookkeeping only.
                 $this->refunds->refund($creditmemo, true);
+                if ($this->persistedMinor('sales_creditmemo', (int) $creditmemo->getId(), $snapshot->currency()) !== $delta) {
+                    throw new \RuntimeException('Native credit memo amount differs.');
+                }
                 $this->queue('creditmemo', (int) $creditmemo->getId(), $id);
             }
         } elseif (!$held && $decision->state === 'authorized') {
@@ -200,7 +192,7 @@ class NativeOrders
         } elseif (
             !$held &&
             $decision->state === 'failed' &&
-            $decision->capturedAmount === 0 &&
+            $decision->capturedAmount === '0' &&
             $decision->gatewayStatus === 'VOIDED'
         ) {
             if ($order->canCancel()) {
@@ -209,6 +201,18 @@ class NativeOrders
         }
         $this->resource->save($order);
     }
+    private function persistedMinor(string $table, int $entityId, string $currency): string
+    {
+        if (!in_array($table, ['sales_invoice', 'sales_creditmemo'], true) || $entityId < 1 || $this->ledger->db()->getTransactionLevel() < 1) {
+            throw new \RuntimeException('A persisted native money record in the ledger transaction is required.');
+        }
+        $decimal = $this->ledger->db()->fetchOne(
+            'SELECT base_grand_total FROM ' . $this->ledger->quote($table) . ' WHERE entity_id=?',
+            [$entityId],
+        );
+        return Money::minor($decimal, self::exponent($currency));
+    }
+
     private function queue(string $kind, int $entityId, int $orderId): void
     {
         $this->ledger->db()->insertOnDuplicate(

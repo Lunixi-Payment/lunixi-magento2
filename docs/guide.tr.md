@@ -1,18 +1,16 @@
 # Magento 2 / Adobe Commerce
 
-**Doğrulanmış güncel mağaza ZIP’i 0.1.4:** [`lunixi-magento2-0.1.4.zip`](https://github.com/Lunixi-Payment/lunixi-magento2/releases/download/v0.1.4/lunixi-magento2-0.1.4.zip) · [SHA256SUMS](https://github.com/Lunixi-Payment/lunixi-magento2/releases/download/v0.1.4/SHA256SUMS) · [Yayın v0.1.4](https://github.com/Lunixi-Payment/lunixi-magento2/releases/tag/v0.1.4) · [Başarılı yayın CI koşumu](https://github.com/Lunixi-Payment/lunixi-magento2/actions/runs/41242098729).
-
-Public ZIP SHA-256: `325625fdaf9f4680ebde1227354ab5c6116dd16d9c123ad7193a41bd96fcdcf2`. İndirilen arşivin checksum, GitHub asset digest ve ZIP CRC kontrolleri 1 Kasım 2026 tarihinde doğrulandı. Otomatik GitHub kaynak arşivi yerine bu kurulum paketini kullanın.
+1.0.0 kurulum ZIP’i [GitHub sürümlerinde](https://github.com/Lunixi-Payment/lunixi-magento2/releases) kullanılabilir olduğunda onu indirin ve aynı sürümün `SHA256SUMS` dosyasıyla doğrulayın. Paket PHP SDK 1.0.1 gerektirir. [Para sözleşmesi geçişini](../MIGRATION-1.0.md) uygulayın; 0.x ZIP’leri önceki sayısal para sözleşmesini kullanır.
 
 Mevcut Lunixi formu varsayılan olarak **mağazanın kendi sitesinde açılır**. Yönlendirmeli ödeme isteğe bağlıdır ve yalnız backend’in döndürdüğü doğrulanmış `paymentPageUrl` kullanılır. Adresin opak token’ı gömülü token’dan farklı olabilir; modül adresi token’dan üretmez. Eksik/eski adres gömülü ödemeyi engellemez; yönlendirmeli ödeme yeni intent veya anahtar açmadan inceleme/uzlaştırmada kalır. Mevcut denemelerin kayıtlı modu, gövdesi, profili ve anahtarı korunur. Yöntemler ve çoklu kart mevcut Lunixi formu/panelinden yönetilir.
 
-Lunixi Payments 0.1.4, Magento Payment Adapter yapısını ortak PHP SDK 0.29.6 ile birleştirir. Kaynak: [lunixi-magento2](https://github.com/Lunixi-Payment/lunixi-magento2). Hedef API serisi **2.4.9**; gerçek platform testleri Magento Open Source üzerinde çalıştırıldı. Lisanslı Adobe Commerce kurulumu test edilmedi.
+Lunixi Payments 1.0.0, Magento Payment Adapter yapısını ortak PHP SDK 1.0.1 ile birleştirir. Kaynak: [lunixi-magento2](https://github.com/Lunixi-Payment/lunixi-magento2). Hedef API serisi **2.4.9**; gerçek platform testleri Magento Open Source üzerinde çalıştırıldı. Lisanslı Adobe Commerce kurulumu test edilmedi.
 
-Doğrulanmış güncel ZIP 0.1.4 yukarıdadır. Native kabul, 223 modüllü tam Open Source 2.4.9 mağazasında PHP 8.5.12, MariaDB 12.3 ve OpenSearch 3.9.0 ile yerel kontrollü TLS ödeme servisine karşı yapıldı. Gerçek banka tahsilatı veya lisanslı Adobe Commerce kabulü yapıldığı iddia edilmez.
+Aşağıdaki 0.1.4 yayın kanıtı tarihsel kayıttır. Native kabul, 223 modüllü tam Open Source 2.4.9 mağazasında PHP 8.5.12, MariaDB 12.3 ve OpenSearch 3.9.0 ile yerel kontrollü TLS ödeme servisine karşı yapıldı. Gerçek banka tahsilatı veya lisanslı Adobe Commerce kabulü yapıldığı iddia edilmez.
 
 ## Kurulum
 
-Hazır `lunixi-magento2-0.1.4.zip` dosyasının SHA-256 değerini doğrulayıp mağaza köküne çıkarın. Modül `app/code/Lunixi/Payments` altında bulunur. ZIP, ad alanı ayrılmış SDK içerir; modül için Composer bağımlılığı indirmeniz gerekmez.
+Hazır `lunixi-magento2-1.0.0.zip` dosyasının SHA-256 değerini doğrulayıp mağaza köküne çıkarın. Modül `app/code/Lunixi/Payments` altında bulunur. ZIP, ad alanı ayrılmış SDK içerir; modül için Composer bağımlılığı indirmeniz gerekmez.
 
 ```bash
 php bin/magento module:enable Lunixi_Payments
@@ -22,9 +20,9 @@ php bin/magento setup:static-content:deploy en_US tr_TR
 php bin/magento cache:clean
 ```
 
-Kaynak koddan paketlemek için `composer install --working-dir=tools --no-plugins --no-scripts`, ardından `php tools/build.php` çalıştırılır. Bağımlılık tam olarak `lunixi/php-sdk:0.29.6` sürümüdür. Güvenilir yerel SDK klasörü `php tools/build.php /mutlak/yol/lunixi-php` ile verilebilir. Kaynak çalışma kopyasını etkinleştirmeden önce paketleyin. GitHub kaynağı, modülün Composer kayıt sisteminde veya Adobe Marketplace'te yayımlandığı anlamına gelmez.
+Kaynak koddan paketlemek için `composer install --working-dir=tools --no-plugins --no-scripts`, ardından `php tools/build.php` çalıştırılır. Bağımlılık tam olarak `lunixi/php-sdk:1.0.1` sürümüdür. Güvenilir yerel SDK klasörü `php tools/build.php /mutlak/yol/lunixi-php` ile verilebilir. Kaynak çalışma kopyasını etkinleştirmeden önce paketleyin. GitHub kaynağı, modülün Composer kayıt sisteminde veya Adobe Marketplace'te yayımlandığı anlamına gelmez.
 
-Adobe’nin desteklediği kurulum tablosunu ve güvenlik yamalarını uygulayın. Güncel native kabul, 223 modüllü tam Magento Open Source 2.4.9 mağazasında PHP 8.5.12, MariaDB 12.3.3/InnoDB ve OpenSearch 3.9.0 ile çalıştı: 23 test / 117 assertion yanında gerçek HTTPS misafir sepet/sipariş, embedded/hosted, dönüş, sahiplik ve imzalı tahsilat yolları yerel TLS ödeme bileşeniyle geçti. Önceki 63 modüllü PHP8.4 kurulumu tarihsel kayıttır. Tam tarayıcı/CDN/kart/3DS veya lisanslı Commerce kabulü iddia edilmez. [Doğrulama](VERIFICATION.md) ve [üst platform bağımlılık bulguları](UPSTREAM-SECURITY.md).
+Adobe’nin desteklediği kurulum tablosunu ve güvenlik yamalarını uygulayın. Geçmiş 0.1.4 native kabulü, 223 modüllü tam Magento Open Source 2.4.9 mağazasında PHP 8.5.12, MariaDB 12.3.3/InnoDB ve OpenSearch 3.9.0 ile çalıştı: 23 test / 117 assertion yanında gerçek HTTPS misafir sepet/sipariş, embedded/hosted, dönüş, sahiplik ve imzalı tahsilat yolları yerel TLS ödeme bileşeniyle geçti. Önceki 63 modüllü PHP8.4 kurulumu tarihsel kayıttır. Tam tarayıcı/CDN/kart/3DS veya lisanslı Commerce kabulü iddia edilmez. [Doğrulama](VERIFICATION.md) ve [üst platform bağımlılık bulguları](UPSTREAM-SECURITY.md).
 
 ## Erişim bilgileri
 
@@ -83,8 +81,14 @@ Magento cron'u çalıştırın. Ayrı dönen bütçeler, bekleyen ödemeleri ve 
 
 ## Saklama ve kapsam
 
-İade/itiraz saklama süresince `lunixi_payment_*` tablolarını, geçmiş profilleri, Magento crypt anahtarını ve ayrı sunucu anahtarını koruyun. Finansal kayıtları silen kaldırma kancası veya yıkıcı şema whitelist dosyası sağlanmaz. 0.1.4 sürümünde abonelik, kart saklama/vault, Hyvä/headless ödeme arayüzleri, otomatik RMA/stok iadesi ve yalnızca Adobe Commerce'e ait özellikler uygulanmadı.
+İade/itiraz saklama süresince `lunixi_payment_*` tablolarını, geçmiş profilleri, Magento crypt anahtarını ve ayrı sunucu anahtarını koruyun. Finansal kayıtları silen kaldırma kancası veya yıkıcı şema whitelist dosyası sağlanmaz. Bu sürümde abonelik, kart saklama/vault, Hyvä/headless ödeme arayüzleri, otomatik RMA/stok iadesi ve yalnızca Adobe Commerce'e ait özellikler uygulanmadı.
 
 Depodaki doğrulama kaydı, gerçekten çalıştırılan testleri ve sınırlarını listeler. Canlı tahsilat, marketplace onayı veya eksiksiz tarayıcı mağaza kabulü iddia edilmez.
 
 Yerel finansal test altyapısına resmi Temmuz–Ekim 2026 CE yamaları ve ayrı VULN-39341 düzeltmesi, sabit SHA-256 değerleriyle uygulandı. Bu, platformun üçüncü taraf bağımlılık taramasının temiz olduğu anlamına gelmez; ayrıntılar depodaki `docs/UPSTREAM-SECURITY.md` kaydındadır. Standart tarayıcı POST dönüşü yalnızca sınırlı, alanları yok sayan aynı köken 303 adaptörüne gider; sonraki GET yerleşik oturum/sahipliği denetler.
+
+## Geçmiş yayın kanıtı
+
+**Geçmiş doğrulanmış mağaza ZIP’i 0.1.4:** [`lunixi-magento2-0.1.4.zip`](https://github.com/Lunixi-Payment/lunixi-magento2/releases/download/v0.1.4/lunixi-magento2-0.1.4.zip) · [SHA256SUMS](https://github.com/Lunixi-Payment/lunixi-magento2/releases/download/v0.1.4/SHA256SUMS) · [Yayın v0.1.4](https://github.com/Lunixi-Payment/lunixi-magento2/releases/tag/v0.1.4) · [Başarılı yayın CI koşumu](https://github.com/Lunixi-Payment/lunixi-magento2/actions/runs/41242098729).
+
+Public ZIP SHA-256: `325625fdaf9f4680ebde1227354ab5c6116dd16d9c123ad7193a41bd96fcdcf2`. İndirilen arşivin checksum, GitHub asset digest ve ZIP CRC kontrolleri 1 Kasım 2026 tarihinde doğrulandı. Bu kanıt yalnız ilgili geçmiş sürüm içindir.

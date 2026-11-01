@@ -77,8 +77,8 @@ final class NativeHttp implements HttpClientInterface
     public string $paymentId;
     public string $status='CAPTURED';
     public ?string $paymentPageUrl='https://pay.lunixi.com/payment/separate-backend-hosted-token';
-    public int $fee=0;
-    public int $refunded=0;
+    public string $fee='0';
+    public string $refunded='0';
     public bool $uncertainRefund=false;
     public bool $uncertainCreate=false;
     public bool $wrongMerchant=false;
@@ -104,13 +104,13 @@ final class NativeHttp implements HttpClientInterface
             if($this->uncertainCreate){$this->uncertainCreate=false;throw new \RuntimeException('Synthetic lost create response');}
             return new HttpResponse(200,[],json_encode(['data'=>['paymentId'=>$this->paymentId,'token'=>'synthetic-browser-token']+($this->paymentPageUrl===null?[]:['paymentPageUrl'=>$this->paymentPageUrl])]));
         }
-        $amount=$this->body['amount']+$this->fee;
-        if($method==='GET')return new HttpResponse(200,[],json_encode(['data'=>['id'=>$this->paymentId,'merchantId'=>$this->wrongMerchant?'wrong-merchant':$this->merchantId,'orderId'=>$this->body['orderId'],'amount'=>$amount,'currency'=>$this->body['currency'],'status'=>$this->status,'metadata'=>$this->body['metadata']], 'details'=>['capturedAmount'=>in_array($this->status,['AUTHORIZED','VOIDED','FAILED','EXPIRED'],true)?0:$amount,'refundedAmount'=>$this->refunded]]));
+        $amount=\Lunixi\Payments\Vendor\Lunixi\Sdk\Commerce\Money::add($this->body['amount'],$this->fee);
+        if($method==='GET')return new HttpResponse(200,[],json_encode(['data'=>['id'=>$this->paymentId,'merchantId'=>$this->wrongMerchant?'wrong-merchant':$this->merchantId,'orderId'=>$this->body['orderId'],'amount'=>$amount,'currency'=>$this->body['currency'],'status'=>$this->status,'metadata'=>$this->body['metadata']], 'details'=>['capturedAmount'=>in_array($this->status,['AUTHORIZED','VOIDED','FAILED','EXPIRED'],true)?'0':$amount,'refundedAmount'=>$this->refunded]]));
         $this->mutationKeys[]=$headers['Idempotency-Key'];
         if(str_ends_with($path,'/capture'))$this->status='CAPTURED';
         if(str_ends_with($path,'/void'))$this->status='VOIDED';
         if(str_ends_with($path,'/refund')){
-            if(count(array_keys($this->mutationKeys,end($this->mutationKeys),true))===1){$input=json_decode($body,true);$this->refunded+=$input['amount'];}
+            if(count(array_keys($this->mutationKeys,end($this->mutationKeys),true))===1){$input=json_decode($body,true);$this->refunded=\Lunixi\Payments\Vendor\Lunixi\Sdk\Commerce\Money::add($this->refunded,$input['amount']);}
             $this->status=$this->refunded===$amount?'REFUNDED':'PARTIALLY_REFUNDED';
             if($this->uncertainRefund){$this->uncertainRefund=false;throw new \RuntimeException('Synthetic lost response');}
         }

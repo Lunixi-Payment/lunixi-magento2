@@ -291,7 +291,7 @@ class Runtime
         int $id,
         string $operationId,
         string $action,
-        ?int $amount,
+        ?string $amount,
     ): PaymentDecision {
         if (
             !preg_match('/^[a-f0-9]{32}$/D', $operationId) ||
@@ -307,7 +307,7 @@ class Runtime
             $operationId,
             $action,
             $amount,
-        ): ?int {
+        ): ?string {
             $op = $this->ledger
                 ->db()
                 ->fetchRow(
@@ -322,14 +322,14 @@ class Runtime
             if ($op['action'] !== null) {
                 if (
                     $op['action'] !== $action ||
-                    ($op['requested_minor'] === null ? null : (int) $op['requested_minor']) !==
+                    ($op['requested_minor'] === null ? null : (string) $op['requested_minor']) !==
                         $amount
                 ) {
                     throw new \RuntimeException(
                         'Operation already has different parameters; reconcile it.',
                     );
                 }
-                return $op['amount'] === null ? null : (int) $op['amount'];
+                return $op['amount'] === null ? null : (string) $op['amount'];
             }
             $record = $this->ledger->load($context['orderKey']);
             if (!is_array($record)) {
@@ -339,29 +339,20 @@ class Runtime
             if ($action === 'void') {
                 $effective = null;
             } elseif ($action === 'capture') {
-                $effective = Money::integer(
-                    Money::integer($record['chargedAmount']) -
-                        Money::integer($record['capturedAmount']),
-                );
+                $effective = Money::subtract($record['chargedAmount'], $record['capturedAmount']);
             } elseif ($action === 'refund') {
                 if (
                     $amount === null ||
-                    $amount < 1 ||
-                    $amount >
-                        $record['snapshot']['amount'] -
-                            min($record['snapshot']['amount'], $record['refundedAmount'] ?? 0)
+                    $amount === '0' ||
+                    Money::compare($amount, Money::subtract($record['snapshot']['amount'], Money::minimum($record['snapshot']['amount'], $record['refundedAmount'] ?? '0'))) > 0
                 ) {
                     throw new \RuntimeException('Invalid native refund amount.');
                 }
                 if (
                     $amount ===
-                    $record['snapshot']['amount'] -
-                        min($record['snapshot']['amount'], $record['refundedAmount'] ?? 0)
+                    Money::subtract($record['snapshot']['amount'], Money::minimum($record['snapshot']['amount'], $record['refundedAmount'] ?? '0'))
                 ) {
-                    $effective = Money::integer(
-                        Money::integer($record['chargedAmount']) -
-                            Money::integer($record['refundedAmount']),
-                    );
+                    $effective = Money::subtract($record['chargedAmount'], $record['refundedAmount']);
                 }
             }
             $this->ledger

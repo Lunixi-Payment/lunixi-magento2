@@ -35,7 +35,7 @@ function removeTree(string $path): void
 $input = $root . '/build/input'; $output = $root . '/build/module';
 removeTree($input); removeTree($output); removeTree($root . '/sdk');
 mkdir($input, 0755, true); mkdir($output, 0755, true);
-$config = ['name' => 'lunixi/magento2-release-input', 'require' => ['lunixi/php-sdk' => '0.29.6'], 'config' => ['allow-plugins' => false, 'sort-packages' => true]];
+$config = ['name' => 'lunixi/magento2-release-input', 'require' => ['lunixi/php-sdk' => '1.0.1'], 'config' => ['allow-plugins' => false, 'sort-packages' => true]];
 if ($local !== null) { $config['repositories'] = [['type' => 'path', 'url' => realpath($local), 'options' => ['symlink' => false]]]; }
 file_put_contents($input . '/composer.json', json_encode($config, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR));
 run(['composer','install','--no-dev','--no-plugins','--no-scripts','--no-interaction','--prefer-dist'], $input);
@@ -51,7 +51,7 @@ $loader .= '        if (!preg_match(\'/^[A-Za-z0-9_\\\\\\\\]+$/D\', $relative)) 
 $loader .= '        $path = __DIR__ . "/" . str_replace("\\\\", "/", $relative) . ".php";' . "\n";
 $loader .= '        if (is_file($path)) { require_once $path; }' . "\n    }\n});\n";
 file_put_contents($root . '/sdk/autoload.php', $loader);
-foreach (['registration.php','autoload.php','composer.json','Model','Gateway','Controller','Block','Plugin','etc','view','i18n','sdk','LICENSE','VERSION','README.md','CHANGELOG.md','SECURITY.md','docs'] as $file) {
+foreach (['registration.php','autoload.php','composer.json','Model','Gateway','Controller','Block','Plugin','etc','view','i18n','sdk','LICENSE','VERSION','README.md','MIGRATION-1.0.md','CHANGELOG.md','SECURITY.md','docs'] as $file) {
     if (file_exists($root . '/' . $file)) { copyTree($root . '/' . $file, $output . '/' . $file); }
 }
 $manifest = json_decode(file_get_contents($output . '/composer.json'), true, 32, JSON_THROW_ON_ERROR);

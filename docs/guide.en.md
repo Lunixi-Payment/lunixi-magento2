@@ -1,16 +1,14 @@
 # Magento 2 / Adobe Commerce
 
-**Current verified merchant ZIP 0.1.4:** [`lunixi-magento2-0.1.4.zip`](https://github.com/Lunixi-Payment/lunixi-magento2/releases/download/v0.1.4/lunixi-magento2-0.1.4.zip) · [SHA256SUMS](https://github.com/Lunixi-Payment/lunixi-magento2/releases/download/v0.1.4/SHA256SUMS) · [Release v0.1.4](https://github.com/Lunixi-Payment/lunixi-magento2/releases/tag/v0.1.4) · [Passing release CI](https://github.com/Lunixi-Payment/lunixi-magento2/actions/runs/41242098729).
-
-Public ZIP SHA-256: `325625fdaf9f4680ebde1227354ab5c6116dd16d9c123ad7193a41bd96fcdcf2`. The downloaded archive passed public checksum, GitHub asset digest and ZIP CRC checks on 1 November 2026. Use this installation package rather than GitHub’s automatic source archive.
+After the 1.0.0 merchant ZIP is available in [GitHub releases](https://github.com/Lunixi-Payment/lunixi-magento2/releases), download it and verify its matching `SHA256SUMS`. This package requires PHP SDK 1.0.1. Follow the [money-string migration](../MIGRATION-1.0.md); 0.x ZIPs use the previous numeric-money contract.
 
 The existing Lunixi form opens **on the merchant website by default**. Hosted checkout remains optional and uses only the validated backend `paymentPageUrl`. Its opaque token can differ from the embedded token; the module never builds this URL from that token. Missing or legacy URLs keep embedded checkout available; hosted checkout stays on hold/reconciliation without a new intent or key. Existing attempts keep their saved mode, request body, profile and key. The official form/panel controls available methods and multi-card options.
 
-Lunixi Payments 0.1.4 integrates the Magento Payment Adapter with the shared PHP SDK 0.29.6. Source: [lunixi-magento2](https://github.com/Lunixi-Payment/lunixi-magento2). The target API line is **2.4.9**; native acceptance was executed on Magento Open Source, not a licensed Adobe Commerce installation.
+Lunixi Payments 1.0.0 integrates the Magento Payment Adapter with the shared PHP SDK 1.0.1. Source: [lunixi-magento2](https://github.com/Lunixi-Payment/lunixi-magento2). The target API line is **2.4.9**; native acceptance was executed on Magento Open Source, not a licensed Adobe Commerce installation.
 
 ## Install
 
-Use the completed `lunixi-magento2-0.1.4.zip` and verify its SHA-256. Extract it at the store root; the module is under `app/code/Lunixi/Payments`. The ZIP bundles a namespace-isolated SDK and needs no module Composer restore.
+Use the completed `lunixi-magento2-1.0.0.zip` and verify its SHA-256. Extract it at the store root; the module is under `app/code/Lunixi/Payments`. The ZIP bundles a namespace-isolated SDK and needs no module Composer restore.
 
 ```bash
 php bin/magento module:enable Lunixi_Payments
@@ -20,7 +18,7 @@ php bin/magento setup:static-content:deploy en_US tr_TR
 php bin/magento cache:clean
 ```
 
-Maintainers can build from source with `composer install --working-dir=tools --no-plugins --no-scripts` followed by `php tools/build.php`. The build input is exactly `lunixi/php-sdk:0.29.6`; `php tools/build.php /absolute/path/to/lunixi-php` accepts a trusted checkout. Source checkouts must be built before enabling the module. GitHub source availability does not imply a module Composer-registry release or Adobe Marketplace listing.
+Maintainers can build from source with `composer install --working-dir=tools --no-plugins --no-scripts` followed by `php tools/build.php`. The build input is exactly `lunixi/php-sdk:1.0.1`; `php tools/build.php /absolute/path/to/lunixi-php` accepts a trusted checkout. Source checkouts must be built before enabling the module. GitHub source availability does not imply a module Composer-registry release or Adobe Marketplace listing.
 
 Follow Adobe’s supported deployment matrix and security patches. Current native acceptance ran the full 223-module Magento Open Source 2.4.9 store on PHP 8.5.12, MariaDB 12.3.3/InnoDB and OpenSearch 3.9.0: 23 tests / 117 assertions plus actual HTTPS guest quote/order, embedded/hosted, callback, ownership and signed settlement routes using a local TLS provider stand-in. The earlier 63-module PHP8.4 fixture remains historical. Full browser/CDN/card/3DS and licensed Commerce acceptance are not claimed. See [verification](VERIFICATION.md) and [upstream dependency findings](UPSTREAM-SECURITY.md).
 
@@ -81,8 +79,14 @@ Enable Magento cron. Separate rotating budgets poll unresolved orders and settle
 
 ## Retention and limits
 
-Keep `lunixi_payment_*` tables, historical profiles, Magento crypt key and the separate server key through refund/dispute retention. No financial-delete uninstall hook or destructive declarative whitelist is provided. Recurring payments, stored cards/vault, Hyvä/headless renderers, automated RMA/restocking and Adobe Commerce-only features are not implemented in 0.1.4.
+Keep `lunixi_payment_*` tables, historical profiles, Magento crypt key and the separate server key through refund/dispute retention. No financial-delete uninstall hook or destructive declarative whitelist is provided. Recurring payments, stored cards/vault, Hyvä/headless renderers, automated RMA/restocking and Adobe Commerce-only features are not implemented in this version.
 
 The repository verification record lists executed native tests, dependency/security checks and limits. No live charge, marketplace approval or complete browser-store acceptance is claimed.
 
 The native financial fixture applies checksum-pinned official July–October 2026 CE patches and the separate VULN-39341 fix. This does not clear the platform’s third-party Composer findings; see [upstream audit scope](UPSTREAM-SECURITY.md). The canonical browser POST callback only uses a bounded field-ignoring same-origin 303 adapter; the subsequent GET restores native session/ownership checks.
+
+## Historical release evidence
+
+**Historical verified merchant ZIP 0.1.4:** [`lunixi-magento2-0.1.4.zip`](https://github.com/Lunixi-Payment/lunixi-magento2/releases/download/v0.1.4/lunixi-magento2-0.1.4.zip) · [SHA256SUMS](https://github.com/Lunixi-Payment/lunixi-magento2/releases/download/v0.1.4/SHA256SUMS) · [Release v0.1.4](https://github.com/Lunixi-Payment/lunixi-magento2/releases/tag/v0.1.4) · [Passing release CI](https://github.com/Lunixi-Payment/lunixi-magento2/actions/runs/41242098729).
+
+Public ZIP SHA-256: `325625fdaf9f4680ebde1227354ab5c6116dd16d9c123ad7193a41bd96fcdcf2`. The downloaded archive passed public checksum, GitHub asset digest and ZIP CRC checks on 1 November 2026. This receipt applies only to that historical version.

@@ -25,7 +25,7 @@ final class NativeContractTest extends TestCase
         $order->method('getId')->willReturn(123);
         $order->setData(['entity_id'=>123, 'store_id'=>2, 'base_grand_total'=>'100.5000', 'base_currency_code'=>'TRY', 'grand_total'=>'3.0000', 'order_currency_code'=>'EUR']);
         $snapshot = NativeOrders::snapshot($order,'merchant');
-        self::assertSame(10050,$snapshot->amount()); self::assertSame('magento:2:123',$snapshot->orderId());
+        self::assertSame('10050',$snapshot->amount()); self::assertSame('magento:2:123',$snapshot->orderId());
         self::assertSame('1.234',NativeOrders::decimal(1234,'KWD'));
         $order->setData('base_grand_total','100.51');
         $this->expectException(\RuntimeException::class); NativeOrders::assertSnapshot($order,$snapshot);

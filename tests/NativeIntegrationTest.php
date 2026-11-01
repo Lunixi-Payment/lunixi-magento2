@@ -20,26 +20,26 @@ final class NativeIntegrationTest extends TestCase
     }
     public function testRealNativeAuthorizationCaptureAndPartialFinalFeeRefunds():void
     {
-        $fixture=new NativeFixture();$fixture->http->status='AUTHORIZED';$fixture->http->fee=300;$fixture->start();
+        $fixture=new NativeFixture();$fixture->http->status='AUTHORIZED';$fixture->http->fee='300';$fixture->start();
         $id=(int)$fixture->order->getId();$fixture->runtime->reconcile($id);
         self::assertFalse($fixture->fresh()->hasInvoices());
         $capture=$fixture->runtime->operationId($id);$fixture->runtime->mutate($id,$capture,'capture',null);
         self::assertSame(1,$fixture->fresh()->getInvoiceCollection()->count());
-        $first=$fixture->runtime->operationId($id);$fixture->runtime->mutate($id,$first,'refund',1000);
+        $first=$fixture->runtime->operationId($id);$fixture->runtime->mutate($id,$first,'refund','1000');
         self::assertSame('10.0000',(string)$fixture->fresh()->getData('base_total_refunded'));
-        $final=$fixture->runtime->operationId($id);$fixture->runtime->mutate($id,$final,'refund',9050);
+        $final=$fixture->runtime->operationId($id);$fixture->runtime->mutate($id,$final,'refund','9050');
         self::assertSame(10350,$fixture->http->refunded);
         self::assertSame('100.5000',(string)$fixture->fresh()->getData('base_total_refunded'));
         self::assertSame(2,$fixture->fresh()->getCreditmemosCollection()->count());
-        $fixture->runtime->mutate($id,$final,'refund',9050);self::assertCount(3,$fixture->http->mutationKeys);
+        $fixture->runtime->mutate($id,$final,'refund','9050');self::assertCount(3,$fixture->http->mutationKeys);
     }
     public function testLostRefundResponseReconcilesWithoutAnotherMutation():void
     {
         $fixture=new NativeFixture();$fixture->start();$id=(int)$fixture->order->getId();$fixture->runtime->reconcile($id);
         $operation=$fixture->runtime->operationId($id);$fixture->http->uncertainRefund=true;
-        try{$fixture->runtime->mutate($id,$operation,'refund',1000);self::fail('Expected unknown outcome');}catch(\RuntimeException){}
+        try{$fixture->runtime->mutate($id,$operation,'refund','1000');self::fail('Expected unknown outcome');}catch(\RuntimeException){}
         $fixture->runtime->reconcile($id);self::assertSame('10.0000',(string)$fixture->fresh()->getData('base_total_refunded'));
-        $fixture->runtime->mutate($id,$operation,'refund',1000);self::assertCount(1,$fixture->http->mutationKeys);
+        $fixture->runtime->mutate($id,$operation,'refund','1000');self::assertCount(1,$fixture->http->mutationKeys);
     }
     public function testNativeFinancialFailureRollsBackInvoiceOrderOutboxAndInbox():void
     {
