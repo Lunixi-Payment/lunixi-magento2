@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.1.1 — 2026-11-16
+
+- Test: check the native expired-order selection instead of running the cancel cron inside the test container.
+- Build tools: `symfony/filesystem` 7.4.23 (security advisory GHSA-6prc-h956-hxjq; not shipped in the module ZIP).
+
 ## 1.1.0 — 2026-11-16
 
 - Built on PHP SDK 1.6.0.

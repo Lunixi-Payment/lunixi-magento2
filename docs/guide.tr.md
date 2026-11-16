@@ -1,16 +1,16 @@
 # Magento 2 / Adobe Commerce
 
-1.1.0 kurulum ZIP’i [GitHub sürümlerinde](https://github.com/Lunixi-Payment/lunixi-magento2/releases) kullanılabilir olduğunda onu indirin ve aynı sürümün `SHA256SUMS` dosyasıyla doğrulayın. Paket PHP SDK 1.6.0 gerektirir. [Para sözleşmesi geçişini](../MIGRATION-1.0.md) uygulayın; 0.x ZIP’leri önceki sayısal para sözleşmesini kullanır.
+1.1.1 kurulum ZIP’i [GitHub sürümlerinde](https://github.com/Lunixi-Payment/lunixi-magento2/releases) kullanılabilir olduğunda onu indirin ve aynı sürümün `SHA256SUMS` dosyasıyla doğrulayın. Paket PHP SDK 1.6.0 gerektirir. [Para sözleşmesi geçişini](../MIGRATION-1.0.md) uygulayın; 0.x ZIP’leri önceki sayısal para sözleşmesini kullanır.
 
 Mevcut Lunixi formu varsayılan olarak **mağazanın kendi sitesinde açılır**. Yönlendirmeli ödeme isteğe bağlıdır ve yalnız backend’in döndürdüğü doğrulanmış `paymentPageUrl` kullanılır. Adresin opak token’ı gömülü token’dan farklı olabilir; modül adresi token’dan üretmez. Eksik/eski adres gömülü ödemeyi engellemez; yönlendirmeli ödeme yeni intent veya anahtar açmadan inceleme/uzlaştırmada kalır. Mevcut denemelerin kayıtlı modu, gövdesi, profili ve anahtarı korunur. Yöntemler ve çoklu kart mevcut Lunixi formu/panelinden yönetilir.
 
-Lunixi Payments 1.1.0, Magento Payment Adapter yapısını ortak PHP SDK 1.6.0 ile birleştirir. Kaynak: [lunixi-magento2](https://github.com/Lunixi-Payment/lunixi-magento2). Hedef API serisi **2.4.9**; gerçek platform testleri Magento Open Source üzerinde çalıştırıldı. Lisanslı Adobe Commerce kurulumu test edilmedi.
+Lunixi Payments 1.1.1, Magento Payment Adapter yapısını ortak PHP SDK 1.6.0 ile birleştirir. Kaynak: [lunixi-magento2](https://github.com/Lunixi-Payment/lunixi-magento2). Hedef API serisi **2.4.9**; gerçek platform testleri Magento Open Source üzerinde çalıştırıldı. Lisanslı Adobe Commerce kurulumu test edilmedi.
 
 Aşağıdaki 0.1.4 yayın kanıtı tarihsel kayıttır. Native kabul, 223 modüllü tam Open Source 2.4.9 mağazasında PHP 8.5.12, MariaDB 12.3 ve OpenSearch 3.9.0 ile yerel kontrollü TLS ödeme servisine karşı yapıldı. Gerçek banka tahsilatı veya lisanslı Adobe Commerce kabulü yapıldığı iddia edilmez.
 
 ## Kurulum
 
-Hazır `lunixi-magento2-1.1.0.zip` dosyasının SHA-256 değerini doğrulayıp mağaza köküne çıkarın. Modül `app/code/Lunixi/Payments` altında bulunur. ZIP, ad alanı ayrılmış SDK içerir; modül için Composer bağımlılığı indirmeniz gerekmez.
+Hazır `lunixi-magento2-1.1.1.zip` dosyasının SHA-256 değerini doğrulayıp mağaza köküne çıkarın. Modül `app/code/Lunixi/Payments` altında bulunur. ZIP, ad alanı ayrılmış SDK içerir; modül için Composer bağımlılığı indirmeniz gerekmez.
 
 ```bash
 php bin/magento module:enable Lunixi_Payments

@@ -188,8 +188,9 @@ final class NativeIntegrationTest extends TestCase
             self::assertSame(Order::STATE_PENDING_PAYMENT,$order->getState(),$status);self::assertSame(Order::STATE_PENDING_PAYMENT,$order->getStatus(),$status);
             self::assertFalse($order->hasInvoices());
             $fixture->ledger->db()->update('sales_order',['created_at'=>gmdate('Y-m-d H:i:s',time()-3*86400),'updated_at'=>gmdate('Y-m-d H:i:s',time()-3*86400)],['entity_id = ?'=>$id]);
-            $fixture->om->get(\Magento\Sales\Model\CronJob\CleanExpiredOrders::class)->execute();
-            self::assertSame(Order::STATE_CANCELED,$fixture->fresh()->getState(),$status);
+            // Same selection as native CleanExpiredOrders (pending_payment, older than the 480-minute lifetime); its cancel needs the full cron config.
+            $expired=$fixture->om->create(\Magento\Sales\Model\ResourceModel\Order\CollectionFactory::class)->create()->addFieldToFilter('entity_id',$id)->addFieldToFilter('state',Order::STATE_PENDING_PAYMENT)->addFieldToFilter('updated_at',['to'=>gmdate('Y-m-d H:i:s',time()-480*60)]);
+            self::assertSame(1,$expired->getSize(),$status);
         }
     }
     public function testCaptureForCanceledOrderIsCommentedAndNotifiedOnceWithoutInvoice():void

@@ -87,3 +87,7 @@ The historical [public 0.1.4 ZIP](https://github.com/Lunixi-Payment/lunixi-magen
 ## 1.1.0 build check (2026-11-16)
 
 `php tools/build.php` resolved published `lunixi/php-sdk` **1.6.0** from Packagist (source and dist reference `9eea75d1e76de427d6242d7a10ae07f6f45e25b4`) and built `lunixi-magento2-1.1.0.zip`. The scoped `sdk/Commerce/PaymentDecision.php` in the ZIP provides `isLinkedPayment()`, `REVIEW_LINKED_PAYMENT` and `REVIEW_ORDER_CLOSED`; the module now calls `isLinkedPayment()` directly. The six release metadata cases, the native security alias check, PHPCS and the two checkout script tests passed. Native PHPUnit, PHPStan and the MariaDB store suite were not run locally; they run in release CI.
+
+## 1.1.1 (2026-11-16)
+
+The 1.1.0 tag was not published as a merchant ZIP: its native acceptance run stopped in one new test that executed the cancel cron inside the test container. 1.1.1 checks the same native expired-order selection directly and updates the build tool `symfony/filesystem` to 7.4.23. The module code and the bundled PHP SDK 1.6.0 are unchanged.

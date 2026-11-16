@@ -1,14 +1,14 @@
 # Magento 2 / Adobe Commerce
 
-After the 1.1.0 merchant ZIP is available in [GitHub releases](https://github.com/Lunixi-Payment/lunixi-magento2/releases), download it and verify its matching `SHA256SUMS`. This package requires PHP SDK 1.6.0. Follow the [money-string migration](../MIGRATION-1.0.md); 0.x ZIPs use the previous numeric-money contract.
+After the 1.1.1 merchant ZIP is available in [GitHub releases](https://github.com/Lunixi-Payment/lunixi-magento2/releases), download it and verify its matching `SHA256SUMS`. This package requires PHP SDK 1.6.0. Follow the [money-string migration](../MIGRATION-1.0.md); 0.x ZIPs use the previous numeric-money contract.
 
 The existing Lunixi form opens **on the merchant website by default**. Hosted checkout remains optional and uses only the validated backend `paymentPageUrl`. Its opaque token can differ from the embedded token; the module never builds this URL from that token. Missing or legacy URLs keep embedded checkout available; hosted checkout stays on hold/reconciliation without a new intent or key. Existing attempts keep their saved mode, request body, profile and key. The official form/panel controls available methods and multi-card options.
 
-Lunixi Payments 1.1.0 integrates the Magento Payment Adapter with the shared PHP SDK 1.6.0. Source: [lunixi-magento2](https://github.com/Lunixi-Payment/lunixi-magento2). The target API line is **2.4.9**; native acceptance was executed on Magento Open Source, not a licensed Adobe Commerce installation.
+Lunixi Payments 1.1.1 integrates the Magento Payment Adapter with the shared PHP SDK 1.6.0. Source: [lunixi-magento2](https://github.com/Lunixi-Payment/lunixi-magento2). The target API line is **2.4.9**; native acceptance was executed on Magento Open Source, not a licensed Adobe Commerce installation.
 
 ## Install
 
-Use the completed `lunixi-magento2-1.1.0.zip` and verify its SHA-256. Extract it at the store root; the module is under `app/code/Lunixi/Payments`. The ZIP bundles a namespace-isolated SDK and needs no module Composer restore.
+Use the completed `lunixi-magento2-1.1.1.zip` and verify its SHA-256. Extract it at the store root; the module is under `app/code/Lunixi/Payments`. The ZIP bundles a namespace-isolated SDK and needs no module Composer restore.
 
 ```bash
 php bin/magento module:enable Lunixi_Payments
