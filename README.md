@@ -1,14 +1,14 @@
 <p align="center"><picture><source media="(prefers-color-scheme: dark)" srcset="view/frontend/web/images/lunixi-dark.svg"><img src="view/frontend/web/images/lunixi.svg" alt="Lunixi" width="240"></picture></p>
 
-> Version 1.0.3 uses all money to canonical minor-unit strings. Read [the migration guide](MIGRATION-1.0.md).
+> Version 1.1.0 uses all money to canonical minor-unit strings. Read [the migration guide](MIGRATION-1.0.md).
 
 # Lunixi Payments for Magento 2
 
-Download the published 1.0.3 merchant ZIP from [GitHub Release v1.0.3](https://github.com/Lunixi-Payment/lunixi-magento2/releases/tag/v1.0.3) and verify its matching `SHA256SUMS`. This package requires PHP SDK 1.0.1. Follow the [money-string migration](MIGRATION-1.0.md); 0.x ZIPs use the previous numeric-money contract.
+Download the published 1.1.0 merchant ZIP from [GitHub Release v1.1.0](https://github.com/Lunixi-Payment/lunixi-magento2/releases/tag/v1.1.0) and verify its matching `SHA256SUMS`. This package requires PHP SDK 1.6.0. Follow the [money-string migration](MIGRATION-1.0.md); 0.x ZIPs use the previous numeric-money contract.
 
 The existing Lunixi form opens **on the merchant website by default**. Hosted checkout remains optional and uses only the validated backend `paymentPageUrl`. Its opaque token can differ from the embedded token; the module never builds this URL from that token. Missing or legacy URLs keep embedded checkout available; hosted checkout stays on hold/reconciliation without a new intent or key. Existing attempts keep their saved mode, request body, profile and key. The official form/panel controls available methods and multi-card options.
 
-Payment module **1.0.3**, targeting Magento Open Source / Adobe Commerce **2.4.9 payment APIs**. It uses the modern Magento Payment Adapter and the shared [Lunixi PHP SDK 1.0.1](https://github.com/Lunixi-Payment/lunixi-php). The existing Lunixi form is embedded by default; optional redirect uses the backend `paymentPageUrl`.
+Payment module **1.1.0**, targeting Magento Open Source / Adobe Commerce **2.4.9 payment APIs**. It uses the modern Magento Payment Adapter and the shared [Lunixi PHP SDK 1.6.0](https://github.com/Lunixi-Payment/lunixi-php). The existing Lunixi form is embedded by default; optional redirect uses the backend `paymentPageUrl`.
 
 Available methods, installments, insurance and split eligibility are managed in the **Lunixi panel**. The module does not duplicate method filters or collect card data. Product-specific capabilities still depend on merchant/form activation and the required product context.
 
@@ -31,7 +31,7 @@ composer install --working-dir=tools --no-interaction --no-plugins --no-scripts
 php tools/build.php
 ```
 
-The builder fetches exactly `lunixi/php-sdk:1.0.1`, scopes it into `Lunixi\Payments\Vendor` with pinned build dependencies and includes its MIT license. A trusted source checkout can be supplied as `php tools/build.php /absolute/path/to/lunixi-php`. Output: `dist/lunixi-magento2-1.0.3.zip` and SHA-256 file. Source checkouts must be built before enabling the module; the generated SDK is deliberately excluded from source control. The source and ZIP include the authoritative `VERSION` file. Public Composer exports may omit their optional `version` field because Packagist reads Git tags; the builder supports both forms and rejects a conflicting field.
+The builder fetches exactly `lunixi/php-sdk:1.6.0`, scopes it into `Lunixi\Payments\Vendor` with pinned build dependencies and includes its MIT license. A trusted source checkout can be supplied as `php tools/build.php /absolute/path/to/lunixi-php`. Output: `dist/lunixi-magento2-1.1.0.zip` and SHA-256 file. Source checkouts must be built before enabling the module; the generated SDK is deliberately excluded from source control. The source and ZIP include the authoritative `VERSION` file. Public Composer exports may omit their optional `version` field because Packagist reads Git tags; the builder supports both forms and rejects a conflicting field.
 
 On a backed-up staging Magento installation, extract the ZIP at the store root. It contains `app/code/Lunixi/Payments/`:
 
@@ -66,6 +66,12 @@ Use **Sales → Orders → Manage Lunixi payment** for capture, partial/full ref
 Confirmed full capture creates a native paid invoice through `InvoiceService`. Refunds create native **monetary adjustment credit memos** after verified settlement; they do not fabricate returned quantities or restock inventory. Product returns/RMA and inventory adjustments remain a separate merchant action. The final base-basket refund includes any remaining authenticated installment fee; gross gateway balances are retained separately so the basket is not inflated twice. Do not issue a separate native offline credit memo for the same Lunixi refund.
 
 Native fraud/manual holds and canceled orders are preserved even when funded. Reconciliation can apply a paid invoice after an explicit native unhold. Magento cron polls unresolved and settled attempts with separate rotating budgets. Mail is queued in a post-commit outbox; an uncertain send remains `review`/`sending` for operator inspection rather than being blindly sent twice. Third-party observers performing external effects inside native events need their own durable outbox.
+
+### Bank transfer waiting period
+
+A bank transfer (havale/EFT/FAST) stays processing for 1 to 3 business days until the money arrives. While the authenticated payment is `PROCESSING`, the module moves the order from `pending_payment` to **Payment Review** and adds an order comment. Magento's pending-payment cleanup (**Stores → Configuration → Sales → Sales → Orders Cron Settings**, 480 minutes by default) cancels only `pending_payment` orders, so it no longer cancels a transfer that is still on its way. During review the order cannot be invoiced or canceled by hand. When the payment completes, the order is invoiced as usual. When it expires or fails, the order returns to `pending_payment` and the native cleanup cancels it as before.
+
+If money arrives for an order that is already canceled, the order stays canceled and is never invoiced automatically. The module adds an order comment and an admin notification (**System → Notifications**) so you can refund the payment or create a new order. If Lunixi accepts a late transfer as another payment for the same order, the module puts the order on hold (when Magento allows a hold), adds a comment with the new payment ID and sends an admin notification. The original payment stays linked to the order. Each notice is written once.
 
 ## Retention and verification
 

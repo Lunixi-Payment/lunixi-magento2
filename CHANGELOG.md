@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.1.0 — 2026-11-16
+
+- Built on PHP SDK 1.6.0.
+- Bank transfers: while the authenticated payment is `PROCESSING`, the order moves from `pending_payment` to `payment_review` (marked by the module), so Magento's pending-payment cleanup no longer cancels it while the money is on the way (1 to 3 business days). A completed payment is invoiced as before; an expired or failed one returns the order to `pending_payment` for the native cleanup.
+- Money captured for a canceled order is no longer kept silently: the order stays canceled and uninvoiced, with an order comment and an admin notification. Each notice is written once.
+- A late payment accepted as another payment for the same order (shared SDK linked-payment review decision) holds the order when possible, with a comment naming the new payment ID and an admin notification. The bound payment is unchanged and no invoice is created. Takes effect with a bundled SDK that includes linked-payment decisions.
+
 ## 1.0.3 — 2026-11-01
 
 - Format the exact-money native order/runtime expressions to satisfy strict release lint; all non-whitespace PHP tokens and financial behavior are unchanged.

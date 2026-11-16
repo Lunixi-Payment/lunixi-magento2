@@ -1,14 +1,14 @@
 # Magento 2 / Adobe Commerce
 
-After the 1.0.0 merchant ZIP is available in [GitHub releases](https://github.com/Lunixi-Payment/lunixi-magento2/releases), download it and verify its matching `SHA256SUMS`. This package requires PHP SDK 1.0.1. Follow the [money-string migration](../MIGRATION-1.0.md); 0.x ZIPs use the previous numeric-money contract.
+After the 1.1.0 merchant ZIP is available in [GitHub releases](https://github.com/Lunixi-Payment/lunixi-magento2/releases), download it and verify its matching `SHA256SUMS`. This package requires PHP SDK 1.6.0. Follow the [money-string migration](../MIGRATION-1.0.md); 0.x ZIPs use the previous numeric-money contract.
 
 The existing Lunixi form opens **on the merchant website by default**. Hosted checkout remains optional and uses only the validated backend `paymentPageUrl`. Its opaque token can differ from the embedded token; the module never builds this URL from that token. Missing or legacy URLs keep embedded checkout available; hosted checkout stays on hold/reconciliation without a new intent or key. Existing attempts keep their saved mode, request body, profile and key. The official form/panel controls available methods and multi-card options.
 
-Lunixi Payments 1.0.0 integrates the Magento Payment Adapter with the shared PHP SDK 1.0.1. Source: [lunixi-magento2](https://github.com/Lunixi-Payment/lunixi-magento2). The target API line is **2.4.9**; native acceptance was executed on Magento Open Source, not a licensed Adobe Commerce installation.
+Lunixi Payments 1.1.0 integrates the Magento Payment Adapter with the shared PHP SDK 1.6.0. Source: [lunixi-magento2](https://github.com/Lunixi-Payment/lunixi-magento2). The target API line is **2.4.9**; native acceptance was executed on Magento Open Source, not a licensed Adobe Commerce installation.
 
 ## Install
 
-Use the completed `lunixi-magento2-1.0.0.zip` and verify its SHA-256. Extract it at the store root; the module is under `app/code/Lunixi/Payments`. The ZIP bundles a namespace-isolated SDK and needs no module Composer restore.
+Use the completed `lunixi-magento2-1.1.0.zip` and verify its SHA-256. Extract it at the store root; the module is under `app/code/Lunixi/Payments`. The ZIP bundles a namespace-isolated SDK and needs no module Composer restore.
 
 ```bash
 php bin/magento module:enable Lunixi_Payments
@@ -18,7 +18,7 @@ php bin/magento setup:static-content:deploy en_US tr_TR
 php bin/magento cache:clean
 ```
 
-Maintainers can build from source with `composer install --working-dir=tools --no-plugins --no-scripts` followed by `php tools/build.php`. The build input is exactly `lunixi/php-sdk:1.0.1`; `php tools/build.php /absolute/path/to/lunixi-php` accepts a trusted checkout. Source checkouts must be built before enabling the module. GitHub source availability does not imply a module Composer-registry release or Adobe Marketplace listing.
+Maintainers can build from source with `composer install --working-dir=tools --no-plugins --no-scripts` followed by `php tools/build.php`. The build input is exactly `lunixi/php-sdk:1.6.0`; `php tools/build.php /absolute/path/to/lunixi-php` accepts a trusted checkout. Source checkouts must be built before enabling the module. GitHub source availability does not imply a module Composer-registry release or Adobe Marketplace listing.
 
 Follow Adobe’s supported deployment matrix and security patches. Current native acceptance ran the full 223-module Magento Open Source 2.4.9 store on PHP 8.5.12, MariaDB 12.3.3/InnoDB and OpenSearch 3.9.0: 23 tests / 117 assertions plus actual HTTPS guest quote/order, embedded/hosted, callback, ownership and signed settlement routes using a local TLS provider stand-in. The earlier 63-module PHP8.4 fixture remains historical. Full browser/CDN/card/3DS and licensed Commerce acceptance are not claimed. See [verification](VERIFICATION.md) and [upstream dependency findings](UPSTREAM-SECURITY.md).
 

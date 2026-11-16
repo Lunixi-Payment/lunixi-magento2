@@ -164,4 +164,73 @@ final class NativeIntegrationTest extends TestCase
         self::assertSame([],$fixture->http->createKeys);
     }
 
+    public function testProcessingPaymentWaitsInReviewOutsideNativeCleanupThenInvoices():void
+    {
+        $fixture=new NativeFixture();$fixture->http->status='PROCESSING';$fixture->start();$id=(int)$fixture->order->getId();
+        $fixture->runtime->reconcile($id);$order=$fixture->fresh();
+        self::assertSame(Order::STATE_PAYMENT_REVIEW,$order->getState());self::assertFalse($order->hasInvoices());
+        self::assertTrue($order->getPayment()->getAdditionalInformation(\Lunixi\Payments\Model\NativeOrders::AWAITING_FUNDS));
+        $fixture->ledger->db()->update('sales_order',['created_at'=>gmdate('Y-m-d H:i:s',time()-3*86400),'updated_at'=>gmdate('Y-m-d H:i:s',time()-3*86400)],['entity_id = ?'=>$id]);
+        $fixture->om->get(\Magento\Sales\Model\CronJob\CleanExpiredOrders::class)->execute();
+        self::assertSame(Order::STATE_PAYMENT_REVIEW,$fixture->fresh()->getState());
+        $fixture->runtime->reconcile($id);self::assertCount(1,$this->comments($fixture->fresh(),'payment review'));
+        $fixture->http->status='CAPTURED';$fixture->deliver('transfer-'.bin2hex(random_bytes(8)));$order=$fixture->fresh();
+        self::assertSame(1,$order->getInvoiceCollection()->count());self::assertSame('100.5000',(string)$order->getData('total_paid'));
+        self::assertNotSame(Order::STATE_PAYMENT_REVIEW,$order->getState());
+        self::assertNull($order->getPayment()->getAdditionalInformation(\Lunixi\Payments\Model\NativeOrders::AWAITING_FUNDS));
+    }
+    public function testExpiredOrFailedProcessingPaymentReturnsToNativeCleanupWithoutInvoice():void
+    {
+        foreach(['EXPIRED','FAILED'] as $status){
+            $fixture=new NativeFixture();$fixture->http->status='PROCESSING';$fixture->start();$id=(int)$fixture->order->getId();
+            $fixture->runtime->reconcile($id);self::assertSame(Order::STATE_PAYMENT_REVIEW,$fixture->fresh()->getState());
+            $fixture->http->status=$status;$fixture->runtime->reconcile($id);$order=$fixture->fresh();
+            self::assertSame(Order::STATE_PENDING_PAYMENT,$order->getState(),$status);self::assertSame(Order::STATE_PENDING_PAYMENT,$order->getStatus(),$status);
+            self::assertFalse($order->hasInvoices());
+            $fixture->ledger->db()->update('sales_order',['created_at'=>gmdate('Y-m-d H:i:s',time()-3*86400),'updated_at'=>gmdate('Y-m-d H:i:s',time()-3*86400)],['entity_id = ?'=>$id]);
+            $fixture->om->get(\Magento\Sales\Model\CronJob\CleanExpiredOrders::class)->execute();
+            self::assertSame(Order::STATE_CANCELED,$fixture->fresh()->getState(),$status);
+        }
+    }
+    public function testCaptureForCanceledOrderIsCommentedAndNotifiedOnceWithoutInvoice():void
+    {
+        $fixture=new NativeFixture();$fixture->start();$id=(int)$fixture->order->getId();
+        $order=$fixture->fresh();$order->cancel();$fixture->om->get(\Magento\Sales\Model\ResourceModel\Order::class)->save($order);
+        $inbox=$this->inbox($fixture,$fixture->http->paymentId);
+        $fixture->deliver('late-'.bin2hex(random_bytes(8)));$fixture->runtime->reconcile($id);$fixture->deliver('late-'.bin2hex(random_bytes(8)));
+        $order=$fixture->fresh();
+        self::assertSame(Order::STATE_CANCELED,$order->getState());self::assertFalse($order->hasInvoices());
+        self::assertCount(1,$this->comments($order,$fixture->http->paymentId));
+        if($inbox!==null){self::assertSame($inbox+1,$this->inbox($fixture,$fixture->http->paymentId));}
+    }
+    public function testLinkedLatePaymentHoldsOrderOnceAndKeepsBoundAttempt():void
+    {
+        $fixture=new NativeFixture();$fixture->http->status='PROCESSING';$fixture->start();$id=(int)$fixture->order->getId();
+        $fixture->runtime->reconcile($id);self::assertSame(Order::STATE_PAYMENT_REVIEW,$fixture->fresh()->getState());
+        $bound=$fixture->http->paymentId;$linked='pay-linked-'.bin2hex(random_bytes(8));$fixture->http->linked[$linked]='CAPTURED';
+        $inbox=$this->inbox($fixture,$linked);
+        $fixture->deliver('linked-'.bin2hex(random_bytes(8)),$linked);
+        $fixture->deliver('linked-'.bin2hex(random_bytes(8)),$linked);$fixture->runtime->reconcile($id);
+        $order=$fixture->fresh();
+        self::assertSame(Order::STATE_HOLDED,$order->getState());self::assertFalse($order->hasInvoices());
+        self::assertSame($bound,$order->getPayment()->getAdditionalInformation('lunixi_payment_id'));
+        self::assertCount(1,$this->comments($order,$linked));
+        if($inbox!==null){self::assertSame($inbox+1,$this->inbox($fixture,$linked));}
+        $context=$fixture->runtime->context($id);$record=$fixture->ledger->transaction($context['orderKey'],fn()=>$fixture->ledger->load($context['orderKey']));
+        self::assertSame($bound,$record['paymentId']);self::assertSame('pending',$record['state']);
+    }
+    /** @return list<string> */
+    private function comments(Order $order,string $needle):array
+    {
+        $found=[];
+        foreach($order->getStatusHistoryCollection() as $history){if(str_contains((string)$history->getComment(),$needle)){$found[]=(string)$history->getComment();}}
+        return $found;
+    }
+    private function inbox(NativeFixture $fixture,string $needle):?int
+    {
+        $db=$fixture->ledger->db();
+        if(!$fixture->om->get(\Magento\Framework\Module\Manager::class)->isEnabled('Magento_AdminNotification')||!$db->isTableExists('adminnotification_inbox')){return null;}
+        return (int)$db->fetchOne('SELECT COUNT(*) FROM adminnotification_inbox WHERE description LIKE ?',['%'.$needle.'%']);
+    }
+
 }

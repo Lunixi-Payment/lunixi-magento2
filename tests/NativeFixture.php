@@ -63,10 +63,10 @@ final class NativeFixture
     }
     public function start(): void { $this->runtime->start((int)$this->order->getId()); }
     public function fresh(): Order { return $this->om->get(NativeOrders::class)->load((int)$this->order->getId()); }
-    public function deliver(string $eventId): void
+    public function deliver(string $eventId, ?string $paymentId = null): void
     {
         $context=$this->runtime->context((int)$this->order->getId());
-        $raw=json_encode(['id'=>$eventId,'type'=>'payment.captured','data'=>['intentId'=>$this->http->paymentId,'orderId'=>$context['orderKey']]],JSON_THROW_ON_ERROR);$timestamp=gmdate('Y-m-d\TH:i:s\Z');
+        $raw=json_encode(['id'=>$eventId,'type'=>'payment.captured','data'=>['intentId'=>$paymentId??$this->http->paymentId,'orderId'=>$context['orderKey']]],JSON_THROW_ON_ERROR);$timestamp=gmdate('Y-m-d\TH:i:s\Z');
         $headers=['x-lunixi-event-id'=>$eventId,'x-lunixi-signature-timestamp'=>$timestamp,'x-lunixi-signature'=>'v2='.hash_hmac('sha256',$eventId.'.'.$timestamp.'.'.$raw,'synthetic-webhook-secret')];
         $this->runtime->receive($context['profileId'],$raw,$headers);
     }
@@ -84,6 +84,8 @@ final class NativeHttp implements HttpClientInterface
     public bool $wrongMerchant=false;
     public array $createKeys=[];
     public array $mutationKeys=[];
+    /** @var array<string,string> Other captured payments of the same order (payment id => status). */
+    public array $linked=[];
     private array $body=[];
     public function __construct(private string $merchantId){ $this->paymentId='pay-native-'.bin2hex(random_bytes(8)); }
     public function send(string $method,string $url,array $headers,?string $body,float $timeout):HttpResponse
@@ -105,7 +107,9 @@ final class NativeHttp implements HttpClientInterface
             return new HttpResponse(200,[],json_encode(['data'=>['paymentId'=>$this->paymentId,'token'=>'synthetic-browser-token']+($this->paymentPageUrl===null?[]:['paymentPageUrl'=>$this->paymentPageUrl])]));
         }
         $amount=\Lunixi\Payments\Vendor\Lunixi\Sdk\Commerce\Money::add($this->body['amount'],$this->fee);
-        if($method==='GET')return new HttpResponse(200,[],json_encode(['data'=>['id'=>$this->paymentId,'merchantId'=>$this->wrongMerchant?'wrong-merchant':$this->merchantId,'orderId'=>$this->body['orderId'],'amount'=>$amount,'currency'=>$this->body['currency'],'status'=>$this->status,'metadata'=>$this->body['metadata']], 'details'=>['capturedAmount'=>in_array($this->status,['AUTHORIZED','VOIDED','FAILED','EXPIRED'],true)?'0':$amount,'refundedAmount'=>$this->refunded]]));
+        $linkedId=$method==='GET'?rawurldecode(basename($path)):'';
+        if(isset($this->linked[$linkedId]))return new HttpResponse(200,[],json_encode(['data'=>['id'=>$linkedId,'merchantId'=>$this->merchantId,'orderId'=>$this->body['orderId'],'amount'=>$amount,'currency'=>$this->body['currency'],'status'=>$this->linked[$linkedId],'metadata'=>$this->body['metadata']], 'details'=>['capturedAmount'=>$amount,'refundedAmount'=>'0']]));
+        if($method==='GET')return new HttpResponse(200,[],json_encode(['data'=>['id'=>$this->paymentId,'merchantId'=>$this->wrongMerchant?'wrong-merchant':$this->merchantId,'orderId'=>$this->body['orderId'],'amount'=>$amount,'currency'=>$this->body['currency'],'status'=>$this->status,'metadata'=>$this->body['metadata']], 'details'=>['capturedAmount'=>in_array($this->status,['AUTHORIZED','VOIDED','FAILED','EXPIRED','PROCESSING'],true)?'0':$amount,'refundedAmount'=>$this->refunded]]));
         $this->mutationKeys[]=$headers['Idempotency-Key'];
         if(str_ends_with($path,'/capture'))$this->status='CAPTURED';
         if(str_ends_with($path,'/void'))$this->status='VOIDED';

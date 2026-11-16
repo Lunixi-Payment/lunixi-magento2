@@ -12,10 +12,16 @@ use Magento\Sales\Model\Service\InvoiceService;
 use Magento\Sales\Model\Order\Invoice;
 use Magento\Sales\Model\Order\CreditmemoFactory;
 use Magento\Sales\Api\CreditmemoManagementInterface;
+use Magento\Framework\Notification\NotifierInterface;
 
 /** Native invoices/credit memos are written on the same connection as the SDK inbox. */
 class NativeOrders
 {
+    /** Payment flag: this module put the order in payment_review while funds are on the way. */
+    public const AWAITING_FUNDS = 'lunixi_awaiting_funds';
+    /** Payment list of merchant review notices already written (idempotency keys). */
+    public const REVIEW_NOTICES = 'lunixi_review_notices';
+
     public function __construct(
         private readonly Ledger $ledger,
         private readonly OrderFactory $orders,
@@ -23,6 +29,7 @@ class NativeOrders
         private readonly InvoiceService $invoices,
         private readonly CreditmemoFactory $creditmemos,
         private readonly CreditmemoManagementInterface $refunds,
+        private readonly NotifierInterface $notifier,
     ) {
     }
     public function load(int $id, bool $lock = false): Order
@@ -91,16 +98,42 @@ class NativeOrders
         if (!($payment instanceof \Magento\Sales\Model\Order\Payment)) {
             throw new \RuntimeException('Native payment required.');
         }
+        if ($decision->isLinkedPayment()) {
+            // Another payment of the same order never replaces the bound attempt or creates an invoice.
+            $this->reviewLinkedPayment($order, $payment, $decision, $snapshot->currency());
+            $this->resource->save($order);
+            return;
+        }
         $payment->setAdditionalInformation('lunixi_payment_id', $decision->paymentId);
         $payment->setAdditionalInformation('lunixi_gross_minor', $decision->chargedAmount);
         $payment->setAdditionalInformation('lunixi_refunded_minor', $decision->refundedAmount);
+        $awaitingFunds = self::isAwaitingFunds($order, $payment);
         // A fraud/manual hold survives funding. Reconciliation can apply it after the native hold is released.
         $held =
-            in_array(
-                $order->getState(),
-                [Order::STATE_HOLDED, Order::STATE_PAYMENT_REVIEW, Order::STATE_CANCELED],
-                true,
-            ) || $payment->getIsFraudDetected();
+            in_array($order->getState(), [Order::STATE_HOLDED, Order::STATE_CANCELED], true) ||
+            ($order->getState() === Order::STATE_PAYMENT_REVIEW && !$awaitingFunds) ||
+            $payment->getIsFraudDetected();
+        if ($order->isCanceled() && Money::compare($decision->capturedAmount, '0') > 0) {
+            // A canceled order is never invoiced automatically; the merchant decides.
+            if ($this->claimNotice($payment, 'closed:' . $decision->paymentId)) {
+                $this->announce(
+                    $order,
+                    (string) __(
+                        'Lunixi payment %1 (%2 %3) was captured after this order was canceled. '
+                            . 'The order was not invoiced. Review it and refund the payment or create a new order.',
+                        $decision->paymentId,
+                        self::decimal($decision->capturedAmount, $snapshot->currency()),
+                        $snapshot->currency(),
+                    ),
+                );
+            }
+        }
+        if (!$held && $awaitingFunds && !self::keepsAwaitingFunds($decision)) {
+            // Return to the original state so invoicing, cancellation and native cleanup run unchanged.
+            $this->releaseAwaitingFunds($order, $payment);
+        } elseif (!$held && !$awaitingFunds && self::startsAwaitingFunds($decision)) {
+            $this->awaitFunds($order, $payment);
+        }
         if (
             !$held &&
             in_array($decision->state, ['paid', 'partially_refunded', 'refunded'], true)
@@ -207,6 +240,101 @@ class NativeOrders
         }
         $this->resource->save($order);
     }
+    private static function isAwaitingFunds(Order $order, Order\Payment $payment): bool
+    {
+        return $order->getState() === Order::STATE_PAYMENT_REVIEW &&
+            $payment->getAdditionalInformation(self::AWAITING_FUNDS) === true;
+    }
+
+    /** The buyer finished; the money is on the way (e.g. a bank transfer for 1-3 business days). */
+    private static function startsAwaitingFunds(PaymentDecision $decision): bool
+    {
+        return $decision->state === 'pending' &&
+            $decision->gatewayStatus === 'PROCESSING' &&
+            $decision->capturedAmount === '0';
+    }
+
+    /** Unresolved evidence keeps waiting; FAILED and every settled or failed decision leave review. */
+    private static function keepsAwaitingFunds(PaymentDecision $decision): bool
+    {
+        return in_array($decision->state, ['pending', 'review'], true) && $decision->gatewayStatus !== 'FAILED';
+    }
+
+    /** payment_review is outside native CleanExpiredOrders, which cancels only pending_payment. */
+    private function awaitFunds(Order $order, Order\Payment $payment): void
+    {
+        if ($order->getState() !== Order::STATE_PENDING_PAYMENT || $order->hasInvoices()) {
+            return;
+        }
+        $payment->setAdditionalInformation(self::AWAITING_FUNDS, true);
+        $order->setState(Order::STATE_PAYMENT_REVIEW)->setStatus(Order::STATE_PAYMENT_REVIEW);
+        $order->addCommentToStatusHistory(
+            (string) __(
+                'The Lunixi payment is processing, for example a bank transfer awaiting funds. '
+                    . 'The order stays in payment review and is invoiced when the payment completes.',
+            ),
+        );
+    }
+
+    private function releaseAwaitingFunds(Order $order, Order\Payment $payment): void
+    {
+        $payment->unsAdditionalInformation(self::AWAITING_FUNDS);
+        $order->setState(Order::STATE_PENDING_PAYMENT)->setStatus(Order::STATE_PENDING_PAYMENT);
+    }
+
+    private function reviewLinkedPayment(
+        Order $order,
+        Order\Payment $payment,
+        PaymentDecision $decision,
+        string $currency,
+    ): void {
+        if (!$this->claimNotice($payment, 'linked:' . $decision->paymentId)) {
+            return;
+        }
+        if (self::isAwaitingFunds($order, $payment)) {
+            $this->releaseAwaitingFunds($order, $payment);
+        }
+        if ($order->canHold()) {
+            $order->hold();
+        }
+        $this->announce(
+            $order,
+            (string) __(
+                'Lunixi accepted another payment for this order: %1 (%2 %3), for example a late bank transfer. '
+                    . 'It was not invoiced. Review the order and refund the payment if it is not needed.',
+                $decision->paymentId,
+                self::decimal($decision->capturedAmount, $currency),
+                $currency,
+            ),
+        );
+    }
+
+    /** Idempotent per key under the order lock; apply() runs more than once for the same evidence. */
+    private function claimNotice(Order\Payment $payment, string $key): bool
+    {
+        $notices = $payment->getAdditionalInformation(self::REVIEW_NOTICES);
+        $notices = is_array($notices) ? array_values(array_filter($notices, 'is_string')) : [];
+        if (in_array($key, $notices, true)) {
+            return false;
+        }
+        $notices[] = $key;
+        $payment->setAdditionalInformation(self::REVIEW_NOTICES, $notices);
+        return true;
+    }
+
+    private function announce(Order $order, string $message): void
+    {
+        $order->addCommentToStatusHistory($message);
+        try {
+            $this->notifier->addMajor(
+                (string) __('Lunixi payment needs review: order #%1', (string) $order->getIncrementId()),
+                $message,
+            );
+        } catch (\Throwable) {
+            /* The order comment is the durable record; an inbox failure must not block settlement. */
+        }
+    }
+
     private function persistedMinor(string $table, int $entityId, string $currency): string
     {
         if (
